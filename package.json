@@ -19,6 +19,6 @@
   "homepage": "https://github.com/himorishige/zenn-contents#readme",
   "dependencies": {
     "install": "^0.13.0",
-    "zenn-cli": "^0.1.100"
+    "zenn-cli": "^0.1.110"
   }
 }
