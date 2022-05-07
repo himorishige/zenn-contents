@@ -1,0 +1,32 @@
+{
+  "title": "React 18 upgrate メモ",
+  "closed": false,
+  "archived": false,
+  "created_at": "2022-04-02",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2022-04-02",
+      "body_markdown": "React v18 へアップグレードする際のメモ\n\n```bash\n$ yarn add react@latest react-dom@latest\n$ yarn add -D @types/react@latest @types/react-dom@latest\n```",
+      "body_updated_at": "2022-04-08"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-04-02",
+      "body_markdown": "React v18から`createRoot`の利用が推奨されるためエントリーファイルを書き換える。\nhttps://github.com/reactwg/react-18/discussions/5\n\n```ts:index.tsx\nimport { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport { App } from 'src/App';\n\nconst container = document.getElementById('root');\n\n// typescripst環境だとcontainer要素がない場合がある旨のエラーが出るので存在しない場合はErrorをthrowさせておく\nif (!container) throw new Error('Failed to find the root element');\n\nconst root = createRoot(container);\n\nroot.render(\n  <StrictMode>\n    <App />\n  </StrictMode>,\n);\n```",
+      "body_updated_at": "2022-04-02"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-04-24",
+      "body_markdown": "`The current testing environment is not configured to support act(…)`\n\nTest環境で上記エラーが出た場合はsetupファイルに下記を追加する。\n\n```typescript\nglobalThis.IS_REACT_ACT_ENVIRONMENT = true;\n```",
+      "body_updated_at": "2022-04-24"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-05-03",
+      "body_markdown": "Viteのテンプレートが使っているこれが一番シンプルそう\n\n```typescript\nimport React from 'react'\nimport ReactDOM from 'react-dom/client'\nimport App from './App'\nimport './index.css'\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>\n)\n```\n\neslint ruleによっては一部除外の必要もあり。\n```\n// eslint-disable-next-line @typescript-eslint/no-non-null-assertion\n```",
+      "body_updated_at": "2022-05-03"
+    }
+  ]
+}

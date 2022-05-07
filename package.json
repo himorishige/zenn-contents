@@ -1,0 +1,24 @@
+{
+  "name": "zenn-contents",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/himorishige/zenn-contents.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/himorishige/zenn-contents/issues"
+  },
+  "homepage": "https://github.com/himorishige/zenn-contents#readme",
+  "dependencies": {
+    "install": "^0.13.0",
+    "zenn-cli": "^0.1.100"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "title": "frourioをためしてみる",
+  "closed": true,
+  "archived": false,
+  "created_at": "2021-12-10",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2021-12-10",
+      "body_markdown": "frourioを使ってCRUDなアプリケーションをつくってみる。\nフロントエンド、バックエンドともに認証基盤はシンプルにAuth0に任せる。\n\nhttps://frourio.io/\n\nhttps://auth0.com/jp",
+      "body_updated_at": "2021-12-10"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2021-12-10",
+      "body_markdown": "# インストール\n\nCLIコマンドでGUIベースのセットアップ画面が立ち上がる。\n\n```bash\n$ yarn create frourio-app\n```\n\nとりあえず基本的な設計は下記の形で。\n\n- Next.js\n- fastify\n- PostgreSQL\n- Prisma",
+      "children": [
+        {
+          "author": "himorishige",
+          "created_at": "2021-12-10",
+          "body_markdown": "インストール時にDBのチェックにskipを選択してもDBの情報入れると途中で止まる？？"
+        },
+        {
+          "author": "himorishige",
+          "created_at": "2021-12-10",
+          "body_markdown": "Ctrl-Cでいったん止めて、先にDockerでPostgreSQLを用意する。"
+        },
+        {
+          "author": "himorishige",
+          "created_at": "2021-12-10",
+          "body_markdown": "DockerでPostgreSQLを起動してインストール完了。\nそもそもPrisma経由なのでsqlite3でとりあえず進めておいて後で差し替えでよかったかも。",
+          "body_updated_at": "2021-12-10"
+        }
+      ]
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2021-12-10",
+      "body_markdown": "# PostgreSQLの準備\n\n開発用にPostgreSQLをDockerで用意。\n\n```yml:Dockerfile\nFROM postgres:14-alpine\n\nENV TZ Asia/Tokyo\n\nENV LANG ja_JP.UTF-8\nENV LANGUAGE ja_JP:ja\nENV LC_ALL ja_JP.UTF-8\n```\n\n```yml:docker-compose.yml\nversion: '3'\nservices:\n  db:\n    build: .\n    ports:\n      - 5432:5432\n    environment:\n      POSTGRES_USER: admin\n      POSTGRES_PASSWORD: 1234\n      POSTGRES_DB: app_db\n```\n\n## PostgreSQLを起動\n\n```bash\n$ docker compose up\n```"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2021-12-10",
+      "body_markdown": "# Next.js、Prismaのアップデート\n\nfrourioでインストールされるNext.jsとPrismaが少し古いのでアップデートする。\n\n## フロント側\n\n```bash\n$ yarn add next@latest\n$ yarn add @prisma/client@latest\n```\n\n## バックエンド側\n\n```bash\n$ yarn add @prisma/client@latest\n$ yarn add -D prisma@latest\n```"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2021-12-10",
+      "body_markdown": "# Chakra UI\n\nUIキットとして、Chakra UIを入れる。\nこちらは公式ドキュメント通り。\n\nhttps://chakra-ui.com/guides/getting-started/nextjs-guide#chakraprovider-props"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2021-12-10",
+      "body_markdown": "# Prisma Studio\n\nPrisma Studioを使うことで簡単にDBの中身を確認したりデータを追加したりできるので便利。\n\n```bash\n$ cd server/\n$ npx prisma studio\n```"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2021-12-13",
+      "body_markdown": "# Prisma Client\n\nprismaClientの共通化を忘れずに対応しておく。\n`server/lib/prismaClient.ts`\n\nhttps://zenn.dev/kanasugi/articles/368d0b39c94daf",
+      "body_updated_at": "2021-12-13"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2021-12-17",
+      "body_markdown": "# APIの生やし方\n\n- tasksを拡張する場合の対象ファイル\n    - server/api/tasks/index.ts\n    - server/types/index.ts\n    - server/validators/index.ts\n        - [https://frourio.io/docs/validation/custom-validation](https://frourio.io/docs/validation/custom-validation)\n    - server/prisma/schema.prisma （DBとの接続が必要なエンドポイントの場合）\n\n# Tasksの拡張\n\n- POST /tasks に完了の初期値（done: boolean）も投稿したい場合\n        \n```typescript:server/api/tasks/index.ts\n        import type { Task } from '$prisma/client'\n        \n        export type Methods = {\n          get: {\n            query?: {\n              limit?: number\n              message?: string\n            }\n        \n            resBody: Task[]\n          }\n          post: {\n            reqBody: Pick<Task, 'label' | 'done'> // doneを追加\n            resBody: Task\n          }\n        }\n```\n\n        \n```tsx:server/api/tasks/controller.ts\n        import { defineController } from './$relay'\n        import { getTasks, createTask } from '$/service/tasks'\n        \n        const print = (text: string) => console.log(text)\n        \n        export default defineController({ getTasks, print }, ({ getTasks, print }) => ({\n          get: async ({ query }) => {\n            if (query?.message) print(query.message)\n        \n            return { status: 200, body: await getTasks(query?.limit) }\n          },\n          post: async ({ body }) => ({\n            status: 201,\n            body: await createTask(body)\n          })\n        }))\n```\n        \n        \n```tsx:server/service/tasks.ts\n        export const createTask = (body: Pick<Task, 'label' | 'done'>) =>\n          prisma.task.create({ data: { ...body } })\n```\n\n## Validatorを利用する場合\n\n- POSTされる内容をバリデートする方法\n        \n```tsx:server/validators/index.ts\n        export class TaskBody {\n          @IsString({message: '文字で'})\n          @Length(1, 5, { message: '1-5文字でOK' })\n          label: string\n        \n          @IsBoolean()\n          done: boolean\n        }\n```\n        \n        \n```tsx:server/api/tasks/index.ts\n        import { TaskBody } from '$/validators'\n        import type { Task } from '$prisma/client'\n        \n        export type Methods = {\n          get: {\n            query?: {\n              limit?: number\n              message?: string\n            }\n        \n            resBody: Task[]\n          }\n          post: {\n            reqBody: TaskBody\n            resBody: Task\n          }\n        }\n```\n        \n\n## 今までにない項目を追加する場合\n\n- Prisma経由でDBへ項目を追加\n        \n```tsx:server/prisma/schema.prisma\n        model Task {\n          id    Int     @id @default(autoincrement())\n          label String\n          body  String\n          done  Boolean @default(false)\n        }\n```\n        \n```bash\n        $ yarn dev もしくは $ yarn migrate:dev でマイグレーションを実行\n        $ yarn prisma migrate reset\n        $ yarn prisma studio\n```\n        \n```tsx:server/validators/index.ts\n        export class TaskBody {\n          @IsString()\n          @Length(1, 5, { message: '1-5文字でOK' })\n          label: string\n        \n          @IsString()\n          body: string\n        \n          @IsOptional()\n          @IsBoolean()\n          done: boolean\n        }\n```\n       \n```tsx:server/service/tasks.ts\n        export const createTask = (body: Pick<Task, 'label' | 'body'>) =>\n          prisma.task.create({ data: { ...body } })\n        \n        または、\n        \n        export const createTask = (body: Prisma.TaskCreateInput) =>\n          prisma.task.create({ data: { ...body } })\n```"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "title": "RemixでBASIC認証を使う",
+  "closed": true,
+  "archived": false,
+  "created_at": "2022-03-23",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2022-03-23",
+      "body_markdown": "RemixでBASIC認証を使うときのメモ\n各ページで手軽に利用できるのがよい感じ。\n\n```typescript:app/route/index.tsx\nimport { HeadersFunction, json, LoaderFunction, useLoaderData } from \"remix\";\n\nexport const headers: HeadersFunction = () => ({\n  \"WWW-Authenticate\": \"Basic\",\n});\n\nconst isAuthorized = (request: Request) => {\n  const header = request.headers.get(\"Authorization\");\n\n  if (!header) return false;\n\n  const base64 = header.replace(\"Basic \", \"\");\n  const [username, password] = Buffer.from(base64, \"base64\")\n    .toString()\n    .split(\":\");\n\n  // 環境変数などでIDとパスワードを渡す\n  return username === \"admin\" && password === \"password\";\n};\n\nexport const loader: LoaderFunction = async ({ request }) => {\n  if (!isAuthorized(request)) {\n    return json({ authorized: false }, { status: 401 });\n  }\n\n  // 認証されたページで利用するデータ\n\n  return json({\n    authorized: true,\n    // 認証されたページで利用するデータを送る\n  });\n};\n\nexport default function Download() {\n  const data = useLoaderData();\n\n  if (!data.authorized) {\n    return <p>Unauthorized</p>;\n  }\n\n  return <div>Authorized</div>;\n}\n```",
+      "body_updated_at": "2022-03-23"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-03-23",
+      "body_markdown": "変数をBASIC認証に割り当てることもできるのでLoaderData内で動的にやりくりしたものを使えるのも面白いところ。\n\n```diff typescript\nconst isAuthorized = (\n  request: Request,\n+  auth: { username: string; password: string }\n) => {\n  const header = request.headers.get(\"Authorization\");\n\n  if (!header) return false;\n\n  const base64 = header.replace(\"Basic \", \"\");\n  const [username, password] = Buffer.from(base64, \"base64\")\n    .toString()\n    .split(\":\");\n\n  // 環境変数などでIDとパスワードを渡す\n+  return username === auth.username && password === auth.password;\n};\n\nexport const loader: LoaderFunction = async ({ request }) => {\n+  if (!isAuthorized(request, { username: \"hoge\", password: \"fuga\" })) {\n    return json({ authorized: false }, { status: 401 });\n  }\n\n  // 認証されたページで利用するデータ\n\n  return json({\n    authorized: true,\n    // 認証されたページで利用するデータを送る\n  });\n};\n```",
+      "body_updated_at": "2022-03-23"
+    }
+  ]
+}

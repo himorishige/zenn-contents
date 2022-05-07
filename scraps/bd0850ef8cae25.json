@@ -1,0 +1,14 @@
+{
+  "title": "Raspberry PiとAWSを利用して子どもたちのゲーム時間を可視化してみる",
+  "closed": false,
+  "archived": true,
+  "created_at": "2021-10-09",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2021-10-09",
+      "body_markdown": "環境\nM1 macbook pro\n```bash\n$ python3 --version\nPython 3.9.7\n```\n\nCDK v2のインストール\n```bash\n$ npm install -g cdk@next\n$ cdk --version\n2.0.0-rc.23 (build 1e54fb9)\n```\n\nCDKのアプリをPythonでセットアップ\n```bash\n$ mkdir game-counter\n$ cd game-counter\n$ cdk init app --language python\n$ python3 -m venv .venv\n$ source .venv/bin/activate\n$ pip install -r requirements.txt\n```\n\n```\ngame-counter\n├── README.md\n├── app.py\n├── cdk.json\n├── game_counter\n│   ├── __init__.py\n│   ├── __pycache__\n│   ├── game_counter.egg-info\n│   └── game_counter_stack.py\n├── requirements.txt\n├── setup.py\n└── source.bat\n```\n",
+      "body_updated_at": "2021-10-09"
+    }
+  ]
+}

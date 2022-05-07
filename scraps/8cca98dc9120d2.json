@@ -1,0 +1,37 @@
+{
+  "title": "React Native(Expo環境)でStorybook v6を使う時のメモ",
+  "closed": false,
+  "archived": false,
+  "created_at": "2022-02-22",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-22",
+      "body_markdown": "# Storybookのインストール\nStorybook公式サイトのチュートリアルはv5の内容のため参考にはならなそう。\n`--type react_native`だとv5がセットアップされてしまう。\n\nそのため通常のReact用でインストール。\n\n```bash\n$ npx -p @storybook/cli sb init --type react\n```",
+      "body_updated_at": "2022-02-23"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-22",
+      "body_markdown": "`---type react`でもReact Native環境であることを認識して自動的にセットアップしてくれる模様。\n\n```js:storybook/index.js\n// if you use expo remove this line\nimport { withKnobs } from '@storybook/addon-knobs';\nimport {\n  getStorybookUI,\n  configure,\n  addDecorator,\n} from '@storybook/react-native';\nimport { AppRegistry } from 'react-native';\n\nimport './rn-addons';\n\n// enables knobs for all stories\naddDecorator(withKnobs);\n\n// import stories\nconfigure(() => {\n  require('./stories');\n}, module);\n\n// Refer to https://github.com/storybookjs/react-native/tree/master/app/react-native#getstorybookui-options\n// To find allowed options for getStorybookUI\nconst StorybookUIRoot = getStorybookUI({});\n\n// If you are using React Native vanilla and after installation you don't see your app name here, write it manually.\n// If you use Expo you should remove this line.\nAppRegistry.registerComponent('%APP_NAME%', () => StorybookUIRoot);\n\nexport default StorybookUIRoot;\n```",
+      "body_updated_at": "2022-02-23"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-22",
+      "body_markdown": "```bash\n$ yarn storybook\n```\n\nで起動。React Nativeのコンポーネント`View`などを使っているコンポーネントはうまく動かない。\nbabel関連の警告も出ていたので下記を追加でインストール。\n\n```bash\n$ yarn add -D babel-loader @babel/preset-env\n```\n\nNativeアプリでStorybookを起動する場合はStorybook Serverの設定などが必要そうだが、ブラウザで確認用途にできればよいということで`webpack.config.js`を追加してブラウザ環境に制限することで動作することができた。\n\n```js:.storybook/webpack.config.js\nmodule.exports = async ({ config }) => {\n  config.resolve.alias = {\n    'react-native$': 'react-native-web',\n  };\n  return config;\n};\n```\n\nで実行できるようになった。",
+      "body_updated_at": "2022-02-23"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-23",
+      "body_markdown": "`react-native-svg`を利用しているコンポーネントが動かないことが判明。\n\nhttps://github.com/kristerkari/react-native-svg-transformer\nこのライブラリとREADMEの指示にある方法でsvgを読み込んだところコンポーネントでのsvg表示、Storybookの起動には成功するが、StorybookでのSVG表示はできない。\n\n```bash\nyarn add react-native-svg-transformer\n```\n\n調べたところ下記のような方法を発見。\nhttps://stefan-majiros.com/blog/exporting-react-native-storybook-components-as-static-storybook-web-app/\n\n```bash\nyarn add svg-react-loader\n```\n\n`webpack.config.js`に追記\n\n```js:webpack.config.js\nmodule.exports = async ({ config }) => {\n  config.resolve.alias = {\n    'react-native$': 'react-native-web',\n    'react-native-svg': 'react-native-svg/lib/commonjs/ReactNativeSVG.web',\n  };\n  // handle SVG support inside Storybook\n  const fileLoaderRule = config.module.rules.find((rule) =>\n    rule.test.test('.svg'),\n  );\n  fileLoaderRule.exclude = /\\.svg$/;\n  config.module.rules.push({\n    test: /\\.svg$/,\n    loader: 'svg-react-loader',\n  });\n  return config;\n};\n```\n\n下記のような記載のコンポーネントで無事に表示ができるようになった。\n\n```ts:Logo.tsx\nimport styled from 'styled-components/native';\nimport TodoLogo from '../../../../assets/todo-logo.svg';\n\nconst LogoWrapper = styled.View``;\n\nexport const Logo: React.VFC = () => {\n  return (\n    <LogoWrapper>\n      <TodoLogo />\n    </LogoWrapper>\n  );\n};\n```\n\n```ts:Logo.stories.tsx\nimport { ComponentMeta, ComponentStoryObj } from '@storybook/react';\n\nimport { Logo } from './Logo';\n\nexport default { title: 'Logo', component: Logo } as ComponentMeta<typeof Logo>;\n\nexport const TodoLogo: ComponentStoryObj<typeof Logo> = {};\n```",
+      "body_updated_at": "2022-02-23"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-24",
+      "body_markdown": "別の問題が発生。\nStorybook、iOSシミュレーター上では問題がないが、webブラウザではSVGを使ったコンポーネントがうまく動かない模様。\nStorybookで確認、iOSで動くなら問題がないといえばないところだけど気になる。"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "title": "RemixでLoaderFunctionからloaderHeadersにデータが渡らない",
+  "closed": true,
+  "archived": false,
+  "created_at": "2022-02-04",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-04",
+      "body_markdown": "RemixでmicroCMSのプレビュー機能を利用するため、draftKeyが付与された時にheaderを動的に切り替えたい。`loaderHeaders.get('Cache-Control')`には必ず`null`が入ってしまう。\n\n```typescript:app/routes/posts/$postId.tsx\n// dataLoaderからheaderが渡された場合に切り替える。デフォルトはstale-while-revalidate\nexport const headers: HeadersFunction = ({ loaderHeaders }) => {\n  const cacheControl =\n    loaderHeaders.get('Cache-Control') ??\n    'max-age=0, s-maxage=60, stale-while-revalidate=60';\n  return {\n    'Cache-Control': cacheControl,\n  };\n};\n\n// microCMS APIから記事詳細を取得する\nexport const loader: LoaderFunction = async ({ params, request }) => {\n  // 下書きの場合\n  const url = new URL(request.url);\n  const draftKey = url.searchParams.get('draftKey');\n\n  // 記事を取得\n\n  // 下書きの場合キャッシュヘッダを変更\n  const headers = draftKey\n    ? { 'Cache-Control': 'no-store, max-age=0' }\n    : undefined;\n\n  return json(content, { headers });\n};",
+      "body_updated_at": "2022-02-04"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-04",
+      "body_markdown": "暫定の解決策\n\n`app/root.tsx`に`LoaderFunction`を追加。\n\n親となるrootのloaderに何かしらデータがあるもしくは明示的に`null`であれば処理がうまくいっている模様。\n\n```typescript:app/root.tsx\nexport const loader: LoaderFunction = async () => {\n  return null;\n};\n```",
+      "body_updated_at": "2022-02-04"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-04",
+      "body_markdown": "暫定の解決策に至るまでの経緯\n\n探ってみたところ同じ現象はすでに下記issueで報告されていた。\nhttps://github.com/remix-run/remix/issues/1140\n\nデータの流れは下記のような感じ\n`dataLoader -> middleware（json helper） -> headerLoader`\n\n指摘箇所は`json helper`だったが、`helper function`を書き換えるのは他にも影響あるかと思い`dataLoader`側から該当箇所を出力する部分を調整するPRを投げた。\n\nhttps://github.com/remix-run/remix/pull/1705\n\n開発者のryanflorence氏からフィードバックをもらうが、ryanflorence氏の環境では該当の問題は起きていないとissueをクローズしてしまった。\n\nいやいや、ということで、症状を再現するテストコードとcodesandbox環境を用意した。\n\nhttps://codesandbox.io/s/intelligent-sammet-losgp?file=/app/routes/index.tsx\n\n改めてryanflorence氏からフィードバック。\n\n> Ah we have regression here, at the moment, headers incorrectly requires that every parent route has a loader. We'll fix this soon, thanks for your work on this :)\n\nどうやら、rootのloaderからもloaderが渡ってくる前提でheaderLoaderのロジックが組まれてしまっていることが原因らしい。\n\nということでissueは再オープン。\n\n"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-04",
+      "body_markdown": "さらに調べた感じ下記`getDocumentHeaders`で問題が発生する。\nここに渡す前に正しくデータを用意できればよいのかもしれない。\n引続き調査。\n\n```typescript\nfunction getDocumentHeaders(build, matches, routeLoaderResponses, actionResponse) {\n  // matches is [root, child], routeLoaderResponses is [child]\n  return matches.reduce((parentHeaders, match, index) => {\n    // index 0, routeModule is root\n    let routeModule = build.routes[match.route.id].module;\n    // index 0, response is from child (since I don't have a root loader)\n    let loaderHeaders = routeLoaderResponses[index] ? routeLoaderResponses[index].headers : new Headers();\n    let actionHeaders = actionResponse ? actionResponse.headers : new Headers();\n    // since root doesn't export headers, i end up with undefined and lose my headers :(\n    let headers = new Headers(routeModule.headers ? typeof routeModule.headers === \"function\" ? routeModule.headers({\n      loaderHeaders,\n      parentHeaders,\n      actionHeaders\n    }) : routeModule.headers : undefined);\n    // Automatically preserve Set-Cookie headers that were set either by the\n    // loader or by a parent route.\n    prependCookies(actionHeaders, headers);\n    prependCookies(loaderHeaders, headers);\n    prependCookies(parentHeaders, headers);\n    return headers;\n  }, new Headers());\n}\n```"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-11",
+      "body_markdown": "修正してくれた🙏\nhttps://github.com/remix-run/remix/pull/1847",
+      "body_updated_at": "2022-02-11"
+    }
+  ]
+}

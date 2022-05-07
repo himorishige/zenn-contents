@@ -1,0 +1,20 @@
+{
+  "title": "Jest v28を試してみる",
+  "closed": false,
+  "archived": false,
+  "created_at": "2022-04-26",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2022-04-26",
+      "body_markdown": "Jest 28がリリースされたので試してみた\n\nhttps://jestjs.io/blog/2022/04/25/jest-28\n\n28から`jest-environment-jsdom`を別途入れる必要がある模様。\n`ts-jest`を利用の場合28対応のバージョンもインストール。（4/26現在ts-jestはまだnextバージョン）\n\n```bash\n$ yarn add -D jest@latest jest-environment-jsdom ts-jest@next\n```",
+      "body_updated_at": "2022-04-26"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-04-26",
+      "body_markdown": "下記警告が出る。\n\n```bash\nts-jest[ts-jest-transformer] (WARN) Use 'ts-jest' entry point in v28 will resolve in refactored transformer. If you wish to use legacy transformer, please adjust your Jest 'transform' config. For example:\n     module.exports = {\n        transform: {\n           '^.+\\\\.tsx?$': 'ts-jest/legacy'\n        }\n     }\n```",
+      "body_updated_at": "2022-04-26"
+    }
+  ]
+}

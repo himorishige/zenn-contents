@@ -1,0 +1,55 @@
+{
+  "title": "CypressをTypeScriptでセットアップする際のメモ",
+  "closed": true,
+  "archived": false,
+  "created_at": "2022-02-10",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-10",
+      "body_markdown": "https://typescript-jp.gitbook.io/deep-dive/intro-1/cypress"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-10",
+      "body_markdown": "TypeScript Deep Diveを参考にセットアップ。\nCypressをプロジェクトに依存させないよう独立したディレクトリ内で構成する。\n\ntesting-libraryのcypress拡張版`@testing-library/cypress`もあわせてインストール。\n\n```bash\nmkdir e2e\ncd e2e\nnpm init -y\nnpm install cypress typescript @testing-library/cypress\n```\n\n`tsconfig.json`ファイルを作成\n\n```json:e2s/tsconfig.json\n{\n  \"extends\": \"../tsconfig.json\",\n  \"compilerOptions\": {\n    \"isolatedModules\": false,\n    \"types\": [\"cypress\", \"@testing-library/cypress\"]\n  },\n  \"include\": [\"node_modules/cypress\", \"./**/*.ts\"]\n}\n```",
+      "body_updated_at": "2022-02-13"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-10",
+      "body_markdown": "```json:e2e/pacakge.json\n// ...\n  \"scripts\": {\n    \"cy:open\": \"cypress open\",\n    \"cy:run\": \"cypress run\"\n  },\n// ...\n```\n\ncypress初回起動で初期ファイルを生成\n\n```bash\n$ npm run cy:open\n```",
+      "body_updated_at": "2022-02-10"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-10",
+      "body_markdown": "eslintやprettierなど便利ツールのセットアップ\n\n```bash\n$ npm install eslint eslint-plugin-cypress prettier eslint-config-prettier @typescript-eslint/eslint-plugin @typescript-eslint/parser\n```\n\n```js:e2e/.eslintrc.js\nmodule.exports = {\n  extends: [\n    'plugin:@typescript-eslint/eslint-recommended',\n    'plugin:@typescript-eslint/recommended',\n    'plugin:cypress/recommended',\n    'prettier',\n  ],\n  plugins: ['@typescript-eslint', 'cypress'],\n  root: true,\n};\n```",
+      "body_updated_at": "2022-02-11"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-10",
+      "body_markdown": "型定義ファイルの用意\n\n```ts:e2e/index.d.ts\ndeclare namespace Cypress {\n  interface Chainable {\n    isExistElement(cssSelector: string): Cypress.Chainable<boolean>;\n  }\n}\n```",
+      "body_updated_at": "2022-02-10"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-10",
+      "body_markdown": "`e2e/cypress/plugins/index.js`をTypeScript書き換え\n\n```ts:e2e/cypress/plugins/index.js\n// eslint-disable-next-line @typescript-eslint/no-empty-function\nexport default (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {};\n```\n\n`e2e/cypress/support/commands.js` -> `e2e/cypress/support/commands.ts`\n`e2e/cypress/support/index.js` -> `e2e/cypress/support/index.ts`",
+      "body_updated_at": "2022-02-10"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-10",
+      "body_markdown": "環境に合わせて`baseUrl`とchromeの設定を記載。\n\n```json:e2e/cypress.json\n{\n  \"baseUrl\": \"http://localhost:3000\",\n  \"chromeWebSecurity\": false\n}\n```",
+      "body_updated_at": "2022-02-12"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-02-11",
+      "body_markdown": "トップページに移動して`Index Page`が表示されているかどうかの仮テスト。\n\n```ts:e2e/cypress/integration/toppage.spec.ts\ndescribe('トップページ', () => {\n  beforeEach(() => {\n    cy.visit('/');\n  });\n  it('should show title', () => {\n    cy.contains('Index Page').should('exist');\n  });\n});\n```\n\n詳しくはドキュメントで。\nhttps://docs.cypress.io/api/table-of-contents",
+      "body_updated_at": "2022-02-12"
+    }
+  ]
+}

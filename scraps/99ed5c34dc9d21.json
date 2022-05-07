@@ -1,0 +1,19 @@
+{
+  "title": "Vitestがどんどんバージョンアップされていたので追ってみる",
+  "closed": false,
+  "archived": false,
+  "created_at": "2022-03-09",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2022-03-09",
+      "body_markdown": "https://vitest.dev/\n\nVitestを気にし始めたときのバージョンがv0.1.20。\nhttps://dev.classmethod.jp/articles/intro-vitest/\n\nこのときに気になっていた不具合？はv0.2あたりからなくなり普通に使えるくらいに。",
+      "body_updated_at": "2022-03-09"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-03-09",
+      "body_markdown": "v0.6.0でプロダクトソース内にテストが書けるようになってる\nhttps://github.com/vitest-dev/vitest/releases"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "react-csvをvite環境で使うときのメモ",
+  "closed": true,
+  "archived": false,
+  "created_at": "2022-03-09",
+  "comments": [
+    {
+      "author": "himorishige",
+      "created_at": "2022-03-09",
+      "body_markdown": "Reactでcsvを書き出したいときに利用するライブラリ`react-csv`を利用していたcra環境をvite環境へ移行した際に手間取ったのでメモ。\n\n下記issueでやり取りされていたようでPRも上がったがCIが通らないという理由でクローズされたまま放置となっている模様。\n\nhttps://github.com/react-csv/react-csv/issues/268"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-03-09",
+      "body_markdown": "`vite`でビルドすると下記エラーが出る。\n\n```bash\nyarn dev\n\n> hoge@1.0.0 dev\n> vite\n\nPre-bundling dependencies:\n  react\n  react-dom\n  @sentry/react\n  @sentry/tracing\n  axios\n  (...and 32 more)\n(this will be run only when your dependencies or config have changed)\n > node_modules/react-csv/src/components/Link.js:110:6: error: Unexpected \"<\"\n    110 │       <a\n        ╵       ^\n```"
+    },
+    {
+      "author": "himorishige",
+      "created_at": "2022-03-09",
+      "body_markdown": "`vite`の仕様上`.js`ファイルに書かれた`jsx`を処理しないことに起因している模様。\n（react-csvもTypeScript化はされていないので。。）\nissueの中で提案されている下記プラグインを追記することで利用が可能となった。\n\n```typescript:vite.config.ts\nimport { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\nimport path from 'path';\n\n// https://vitejs.dev/config/\nexport default defineConfig(({ command }) => {\n  return { plugins: [react(), fixReactCsvPlugin(command)], server: {} };\n});\n\nfunction fixReactCsvPlugin(command) {\n  const esbuildPlugin = {\n    name: 'esbuild:resolve-fixes',\n    setup: (build) => {\n      build.onResolve({ filter: /react-csv$/ }, (args) => {\n        return Promise.resolve({\n          path: path.join(process.cwd(), './node_modules/react-csv/index.js'),\n        });\n      });\n    },\n  };\n\n  return {\n    name: 'resolve-fixes',\n    config() {\n      // only use the esbuild plugin during dev (\"serve\" command)\n      if (command === 'serve') {\n        return {\n          optimizeDeps: {\n            // development fixes\n            esbuildOptions: {\n              plugins: [esbuildPlugin],\n            },\n          },\n        };\n      }\n\n      // build\n      return {\n        resolve: {\n          // production fixes\n          alias: [\n            {\n              find: 'react-csv',\n              replacement: './node_modules/react-csv/index.js',\n            },\n          ],\n        },\n      };\n    },\n  };\n}\n```"
+    }
+  ]
+}
