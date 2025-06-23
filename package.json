@@ -27,6 +27,6 @@
     "textlint-rule-ja-no-weak-phrase": "^2.0.0",
     "textlint-rule-preset-jtf-style": "^2.3.13",
     "textlint-rule-prh": "^5.3.0",
-    "zenn-cli": "^0.1.143"
+    "zenn-cli": "^0.1.161"
   }
 }
