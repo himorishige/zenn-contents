@@ -84,7 +84,9 @@ Memories は AI の短期記憶のようなものです。対話の中で得ら�
 
 ### 3: プランニングモード (Planning Mode) で長期的な一貫性を保つ
 
-新たに登場したプランニングモードは、AI ドリフトに対する強力な対策となります。開発タスク全体の計画を AI と共有することで、AI は常に長期的な目標を意識しながら応答を生成するようになります。これにより、目先の対話に惑わされず、一貫したアウトプットが期待できます。
+AIとの会話がズレていく「AIドリフト」に、Planning Modeは心強い味方です。旅の計画を立てるように、最初にゴールを伝えると、AIがそこまでの道のり（プラン）を一緒に考えてくれます。この共有プランがあるから、AIは常に最終目的地を忘れず、目先の対話に惑わされません。途中で「こっちの道も試したい」と伝えても、柔軟にプランを更新してくれるので、タスクが迷子になる心配もありません。結果として、やり取りに振り回されない一貫したアウトプットが期待できます。
+
+![Planning Mode](/images/windsurf-guide-wave10/planning-mode.gif)
 
 https://docs.windsurf.com/windsurf/cascade/planning-mode
 
@@ -99,7 +101,10 @@ https://docs.windsurf.com/windsurf/cascade/planning-mode
 ### 4: `@`メンションで曖昧さをなくす
 
 「この関数を修正して」「あのファイルに追記して」といった曖昧な指示は、AI の誤解を招く原因になります。`@`メンションを使って修正対象のファイルやコードブロックを具体的に指定することで、指示の曖昧さを排除し、意図した通りの操作を AI に実行させることができます。
-さらに Windsurf Browser の登場でターミナル、エディターだけでなくブラウザからもコンテキストを直接渡すことができるようになっています。
+
+![Windsurf Browser](/images/windsurf-guide-wave10/windsurf-browser.gif)
+
+さらに Windsurf Browser の登場でターミナル、エディターだけでなくブラウザからも要素を直接コンテキストとして渡すことができるようになっています。
 
 https://docs.windsurf.com/windsurf-browser/overview
 
