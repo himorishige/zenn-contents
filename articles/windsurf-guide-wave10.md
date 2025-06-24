@@ -15,9 +15,9 @@ https://windsurf.com/
 
 ## はじめに: なぜ、Windsurf を選ぶのか
 
-2025 年 6 月、生成 AI によるコーディング支援ツールはまさに戦国時代。多くの開発者が数々の LLM や IDE に注目する中、自分は個人開発のパートナーとして「Windsurf」を選び、愛用しています。なぜなら、Windsurf は単なるコード生成ツールではなく、開発者と「対話」し、同じ目線でプロジェクトを進めるという「AI flow」（AIとペアプロするように対話しながら開発する思想）に深く共感したからです。
+2025 年 6 月、生成 AI によるコーディング支援ツールはまさに戦国時代。多くの開発者が数々の LLM や IDE に注目する中、自分は個人開発のパートナーとして「Windsurf」を選び、愛用しています。なぜなら、Windsurf は単なるコード生成ツールではなく、開発者と「対話」し、同じ目線でプロジェクトを進めるという「AI flow」（AI とペアプロするように対話しながら開発する思想）に深く共感したからです。
 
-> ![AI flow](/images/windsurf-guide-wave10/ai-flow.png) 
+> ![AI flow](/images/windsurf-guide-wave10/ai-flow.png)
 > _引用元：[Windsurf Launch](https://windsurf.com/blog/windsurf-launch)_
 
 と、かなり風呂敷を広げた謎の前振りで始まりましたが、この記事では、Windsurf が提唱する AI との新しい関係性に基づき、AI を単なる「作業者」ではなく「パートナー」として迎え入れ、開発を加速させるためのガイドラインを、私自身の Windsurf との接し方とともに、ポエム要素を交えてご紹介します。
@@ -94,7 +94,7 @@ https://docs.windsurf.com/windsurf/cascade/planning-mode
 
 現在は無料で利用できるため、ある程度の大きさのタスクであれば Planning Mode を積極的に利用しています。正式版になった時の料金体系次第では使い所を考える必要はあるのかもれません。
 大人の事情で別途 API 利用料がかかりますが、Claude Sonnet 4 を利用するとかなりの自走力を見せてくれます。
-（2025年6月現在、ベータ版として無料で利用可能。最新情報は[公式サイト](https://docs.windsurf.com/windsurf/models)をご確認ください）
+（2025 年 6 月現在、ベータ版として無料で利用可能。最新情報は[公式サイト](https://docs.windsurf.com/windsurf/models)をご確認ください）
 
 ### 4: `@`メンションで曖昧さをなくす
 
@@ -107,7 +107,7 @@ https://docs.windsurf.com/windsurf-browser/overview
 
 Cascade で利用する LLM モデルは、Pro プランで利用できるクレジットとのバランスを見ながら、次のように使い分けています。
 
-| モデル                          | 利用頻度 | 指示     | 粒度   | コスト | 使い方                                                                                                                                                 |
+| モデル                          | 利用頻度 | 指示     | 粒度   | コスト | 使い方                                                                                                                                               |
 | ------------------------------- | -------- | -------- | ------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **GPT-4.1**                     | 大       | 明確     | 小     | 低     | 小さなタスクの大半はこれで、指示通りのことしかしないのでコードにノイズが少ない、ただし曖昧な指示をするとできました！といって何もできてないこと多し。 |
 | **o3**                          | 小       | 曖昧     | 小〜中 | 中     | 開発のアイデア出しや、設計書作成など。次の一手を考えるときの良き相談相手。指示の行間をしっかり読んでくれる。                                         |
@@ -120,7 +120,7 @@ Cascade で利用する LLM モデルは、Pro プランで利用できるクレ
 
 https://github.com/himorishige/windsurf-rules/blob/09706c6e5876459bbf358217ad72c3479d2bc0c7/.windsurf/workflows/ultra-think.md
 
-Windsurf Proプラン内で Claude Sonnet 4 使いたい🥹
+Windsurf Pro プラン内で Claude Sonnet 4 使いたい 🥹
 
 ### 6: Workflows の活用
 
@@ -130,6 +130,7 @@ Workflows を使えば、複雑な指示を多角的に掘り下げられます�
 https://docs.windsurf.com/windsurf/cascade/workflows
 
 プロジェクトによって内容は異なりますが、私は以下のような Workflows を作成して利用しています。
+
 - `/code-lint-formatting` : Lint とコードフォーマット
 - `/code-review` : コードレビュー
 - `/run-tests-and-fix` : テスト実行と修正
@@ -139,12 +140,12 @@ https://docs.windsurf.com/windsurf/cascade/workflows
 
 MCP もプロジェクトごとに使い分けていますが、最近は用途を絞って活用しています。私がよく使う MCP は次のとおりです。
 
-| MCP | 用途 |
-| --- | --- |
-| [context7](https://github.com/himorishige/context7) | 開発時の最新の公式ドキュメントを参照するために活用 |
+| MCP                                                                                                     | 用途                                                             |
+| ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [context7](https://github.com/himorishige/context7)                                                     | 開発時の最新の公式ドキュメントを参照するために活用               |
 | [sequential thinking](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking) | 複雑な指示を多角的に深掘りさせるための`ultrathink`ワークフロー用 |
-| [supabase](https://supabase.com/docs/guides/getting-started/mcp) | supabase に関する操作、ドキュメント参照など |
-| [cloudflare](https://developers.cloudflare.com/agents/model-context-protocol/) | cloudflare に関する操作、ドキュメント参照など |
+| [supabase](https://supabase.com/docs/guides/getting-started/mcp)                                        | supabase に関する操作、ドキュメント参照など                      |
+| [cloudflare](https://developers.cloudflare.com/agents/model-context-protocol/)                          | cloudflare に関する操作、ドキュメント参照など                    |
 
 ### 8: コードができ上がったら
 
