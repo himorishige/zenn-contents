@@ -69,7 +69,7 @@ https://docs.windsurf.com/windsurf/cascade/memories
 
 https://github.com/himorishige/windsurf-rules/blob/09706c6e5876459bbf358217ad72c3479d2bc0c7/global_rules_ja.md
 
-#### ルールの簡単な解説
+#### `global_rules.md`の簡単な紹介
 
 - **Core Principles**: どのようなコードを「良いコード」とするかの基本方針です。シンプルさや可読性を最優先にしています。
 - **Workflow Standards**: 開発プロセスにおけるルールです。変更を小さく保つこと（Atomic Changes）や、コミットメッセージの規律（Commit Discipline）を AI に意識させます。
@@ -99,6 +99,8 @@ https://docs.windsurf.com/windsurf/cascade/planning-mode
 
 「この関数を修正して」「あのファイルに追記して」といった曖昧な指示は、AI の誤解を招く原因になります。`@`メンションを使って修正対象のファイルやコードブロックを具体的に指定することで、指示の曖昧さを排除し、意図した通りの操作を AI に実行させることができます。
 さらに Windsurf ブラウザの登場でターミナル、エディターだけでなくブラウザからもコンテキストを直接渡すことができるようになっています。
+
+https://docs.windsurf.com/windsurf-browser/overview
 
 ### 5: 用途に合わせた適切なモデルの選択
 
@@ -143,7 +145,11 @@ MCP もプロジェクトによって複数使い分けて利用しています�
 | [supabase](https://supabase.com/docs/guides/getting-started/mcp) | supabase に関する操作、ドキュメント参照など |
 | [cloudflare](https://developers.cloudflare.com/agents/model-context-protocol/) | cloudflare に関する操作、ドキュメント参照など |
 
-### 8: Windsurf に興味を持ったら
+### 8: コードができ上がったら
+
+しっかりレビューしましょう！
+
+### 9: Windsurf に興味を持ったら
 
 Windsurf のインストールから使い方、機能について Windsurf開発チームが動画で解説してくれています。
 
@@ -159,8 +165,8 @@ VibeCoding が当たり前になった今、「YOLO（You Only Live Once）」 �
 
 ## おわりに
 
-Windsurf はコードを量産する道具ではなく、考えを整理したり新しい着想をくれる「パートナー」。AI と肩を並べ、舵を取りながら進むための仕組みと思想が詰まっています。
+Windsurf はコードを量産する道具というより、アイデアを磨き合うパートナーのような存在です。AI と並走しながら、一緒に方向を見定めて進む。そのプロセスを支えるための工夫と思想が、このツールには詰まっています。
 
-この記事が、Windsurf（もしくはその他の生成 AI） ともっと気楽に、そして楽しく付き合うヒントになればうれしいです。
+この記事が、Windsurf や他の生成 AI ともっと気楽に、そして楽しく付き合うヒントになればうれしいです。
 
 Surf's up🏄‍♂️🤙
