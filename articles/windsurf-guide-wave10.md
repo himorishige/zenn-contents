@@ -38,7 +38,7 @@ Windsurf が提唱する「AI flow」とは、人間と AI が同じ目線で、
 https://windsurf.com/blog/windsurf-wave-10-planning-mode
 https://windsurf.com/blog/windsurf-wave-10-browser
 
-「Planning Mode」と「Windsurf Browser」の登場で、計画（Plan）からターミナル操作、コード編集、そしてブラウザでの確認まで、開発の一連の流れが Windsurf という 1 つのプラットフォームに統合されました。人間と AI が同じ計画、同じツール、同じ画面を共有することで、開発のコンテキストが一致し、「今、何のために、何をしているのか」という認識を揃えることができるようになったと言えます。
+「Planning Mode」と「Windsurf Browser」の登場で、計画（Plan）からターミナル操作、コード編集、そしてブラウザ（コンソール）での確認まで、開発の一連の流れが Windsurf という 1 つのプラットフォームに統合されました。人間と AI が同じ計画、同じツール、同じ画面を共有することで、開発のコンテキストが一致し、「今、何のために、何をしているのか」という認識を揃えることができるようになったと言えます。
 
 Wave 10 により、Windsurfが目指す「AI flow」が真の意味で実現されたと感じています。
 
@@ -103,7 +103,7 @@ https://docs.windsurf.com/windsurf/cascade/planning-mode
 
 ![Windsurf Browser](/images/windsurf-guide-wave10/windsurf-browser.gif)
 
-さらに Windsurf Browser の登場でターミナル、エディターだけでなくブラウザからも要素を直接コンテキストとして渡すことができるようになっています。
+さらに Windsurf Browser の登場でターミナル、エディターだけでなくブラウザ（コンソールも）からも要素を直接コンテキストとして渡すことができるようになっています。
 
 https://docs.windsurf.com/windsurf-browser/overview
 
