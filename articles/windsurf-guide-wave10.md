@@ -167,8 +167,9 @@ MCP もプロジェクトごとに使い分けていますが、最近は用途�
 
 - **AI ドリフトが起き始めた時**: Planning Mode に戻って計画を再確認
 - **モデルが期待通りに動作しない時**: rules の見直しと `@` メンションの活用
-- **モデルからの回答がループ気味の時**: Workflows（`/ultrathink`）の活用
-- **クレジットが足りない時**: SWE-1 と Workflows(`/ultrathink`) の組み合わせを活用
+- **ガンガンいこうぜな時**: Claude Sonnet 4（Thinking）の活用 💸
+- **モデルが混乱気味の時**: Workflows（`/ultrathink`）の活用
+- **いのちだいじにな時**: SWE-1 と Workflows(`/ultrathink`) の組み合わせを活用
 
 ### 10: Windsurf に興味を持ったら
 
