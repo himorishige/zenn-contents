@@ -96,7 +96,6 @@ https://docs.windsurf.com/windsurf/cascade/planning-mode
 
 現在は無料で利用できるため、ある程度の大きさのタスクであれば Planning Mode を積極的に利用しています。正式版になった時の料金体系次第では使い所を考える必要はあるのかもれません。
 大人の事情で別途 API 利用料がかかりますが、Claude Sonnet 4 を利用するとかなりの自走力を見せてくれます。
-（2025 年 6 月現在、ベータ版として無料で利用可能。最新情報は[公式サイト](https://docs.windsurf.com/windsurf/models)をご確認ください）
 
 ### 4: `@`メンションで曖昧さをなくす
 
