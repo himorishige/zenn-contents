@@ -130,9 +130,7 @@ Cascade で利用する LLM モデルは、Pro プランで利用できるクレ
 
 現時点ではコストパフォーマンスを考えると GPT-4.1 が一番の選択肢で、ここぞというときには自前の `/ultrathink` Workflows を使って対応しています。Sequential Thinking MCP・MECE フレームワーク・ユーザー参加型分岐を活用し、ユーザー指示の背景・意図・最適な解決策を多角的に深掘りさせるワークフローで、コストの低いモデルでも推論させることで比較的高い品質を維持できている気がします。（トークンはその分消費します）
 
-https://github.com/himorishige/windsurf-rules/blob/09706c6e5876459bbf358217ad72c3479d2bc0c7/.windsurf/workflows/ultra-think.md
-
-Windsurf Pro プラン内で Claude Sonnet 4 使いたい 🥹
+Windsurf Pro プラン範囲内で Claude Sonnet 4 使いたい 🥹
 
 ### 6: Workflows の活用
 
@@ -147,6 +145,8 @@ https://docs.windsurf.com/windsurf/cascade/workflows
 - `/code-review` : コードレビュー
 - `/run-tests-and-fix` : テスト実行と修正
 - `/ultrathink` : オマージュコマンド、複雑な指示を多角的に深掘りさせる
+
+https://github.com/himorishige/windsurf-rules/blob/08fc30441b0d4bc029b7138c00baa8cf06d91abe/.windsurf/workflows/ultrathink.md
 
 ### 7: MCP の活用
 
