@@ -15,7 +15,7 @@ https://windsurf.com/
 
 ## はじめに: なぜ、Windsurf を選ぶのか
 
-2025 年 6 月、生成 AI によるコーディング支援ツールはまさに戦国時代。多くの開発者が数々の LLM や IDE に注目する中、自分は個人開発のパートナーとして「Windsurf」を選び、愛用しています。なぜなら、Windsurf は単なるコード生成ツールではなく、開発者と「対話」し、同じ目線でプロジェクトを進めるという「AI flow」（AI とペアプロするように対話しながら開発する思想）に深く共感したからです。
+2025 年 6 月、生成 AI によるコーディング支援ツールはまさに戦国時代。多くの開発者が数々の LLM や IDE に注目する中、自分は個人開発のパートナーとして「Windsurf」を選び、愛用しています。なぜなら、Windsurf は単なるコード生成ツールではなく、開発者と「対話」し、同じ目線でプロジェクトを進める「AI flow」（AI とペアプロするように対話しながら開発する思想）を体現しているからです。
 
 > ![AI flow](/images/windsurf-guide-wave10/ai-flow.png)
 > _引用元：[Windsurf Launch](https://windsurf.com/blog/windsurf-launch)_
@@ -33,14 +33,14 @@ https://windsurf.com/blog/our-brand
 
 Windsurf が提唱する「AI flow」とは、人間と AI が同じ目線で、まるでペアプログラミングのように開発を進めるという思想です。単にコードを生成させるだけでなく、開発プロセスそのものを共有し、対話しながら開発のゴールを目指します。
 
-この思想を大きく前進させたのが、Wave10 で登場した「Planning Mode」と「Windsurf Browser」ではないでしょうか。
+この思想を大きく前進させたのが、Wave 10 で登場した「Planning Mode」と「Windsurf Browser」ではないでしょうか。
 
 https://windsurf.com/blog/windsurf-wave-10-planning-mode
 https://windsurf.com/blog/windsurf-wave-10-browser
 
 「Planning Mode」と「Windsurf Browser」の登場で、計画（Plan）からターミナル操作、コード編集、そしてブラウザでの確認まで、開発の一連の流れが Windsurf という 1 つのプラットフォームに統合されました。人間と AI が同じ計画、同じツール、同じ画面を共有することで、開発のコンテキストが一致し、「今、何のために、何をしているのか」という認識を揃えることができるようになったと言えます。
 
-私はこの Wave10 こそが、Windsurf が目指す「AI flow」の本当のスタート地点に立った瞬間のように感じました。
+Wave 10 により、Windsurfが目指す「AI flow」が真の意味で実現されたと感じています。
 
 ## Windsurf と共同開発するためのガイドライン
 
@@ -91,7 +91,7 @@ AI との対話が徐々にズレてしまう「AI ドリフト」には、Plann
 https://docs.windsurf.com/windsurf/cascade/planning-mode
 
 :::message
-現在 Panning Mode は beta 版で、有料プランにて無料で利用可能です。バックグラウンドでは、長期的な推論能力に優れたより大規模なモデルが、選択されたモデルを用いて計画に基づいた短期的なアクションを実行する際に、長期計画を反復処理するために使用されているらしい？
+現在 Planning Mode は beta 版で、有料プランにて無料で利用可能です。バックグラウンドでは、長期的な推論能力に優れたより大規模なモデルが、選択されたモデルを用いて計画に基づいた短期的なアクションを実行する際に、長期計画を反復処理するために使用されているらしい？
 :::
 
 現在は無料で利用できるため、ある程度の大きさのタスクであれば Planning Mode を積極的に利用しています。正式版になった時の料金体系次第では使い所を考える必要はあるのかもれません。
@@ -106,6 +106,14 @@ https://docs.windsurf.com/windsurf/cascade/planning-mode
 さらに Windsurf Browser の登場でターミナル、エディターだけでなくブラウザからも要素を直接コンテキストとして渡すことができるようになっています。
 
 https://docs.windsurf.com/windsurf-browser/overview
+
+#### Windsurf Browser を使った開発の一例:
+
+1. Planning Mode で「ユーザー管理画面の作成」を計画
+2. `@`メンションで既存のコンポーネントを参照
+3. GPT-4.1 で基本実装、Claude Sonnet 4 でリファクタリング
+4. Windsurf Browser でリアルタイム確認・修正依頼
+5. Plan のゴールを達成するまで 2-4 を繰り返す
 
 ### 5: 用途に合わせた適切なモデルの選択
 
@@ -155,7 +163,14 @@ MCP もプロジェクトごとに使い分けていますが、最近は用途�
 
 しっかりレビューしましょう！
 
-### 9: Windsurf に興味を持ったら
+### 9: よくある課題と対処法
+
+- **AI ドリフトが起きた時**: Planning Mode に戻って計画を再確認
+- **モデルが期待通りに動作しない時**: ルールの見直しと `@` メンションの活用
+- **モデルからの回答がループ気味の時**: Workflows（`/ultrathink`）の活用
+- **クレジットが足りない時**: SWE-1 と Workflows(`/ultrathink`) の組み合わせ
+
+### 10: Windsurf に興味を持ったら
 
 Windsurf のインストール方法や主な機能は、開発チームが公開する動画でわかりやすく解説されています。
 
