@@ -6,8 +6,6 @@ topics: [windsurf, ポエム]
 published: false
 ---
 
-# Windsurf 波乗りガイド: Wave 10
-
 https://windsurf.com/
 
 :::message
@@ -44,7 +42,7 @@ https://windsurf.com/blog/windsurf-wave-10-browser
 
 自分には、この Wave10 こそが、Windsurf が目指す「AI flow」の本当のスタート地点に立った瞬間のように感じられました。
 
-## AI の性能を最大限に引き出す、Windsurf ガイドライン
+## AI の性能を最大限に引き出すための Windsurf ガイドライン
 
 AI との共同作業でしばしば課題となるのが「AI ドリフト」です。これは、対話を重ねるうちに AI の応答が当初の目的や文脈から少しずつズレていってしまう現象を指します。このドリフトを防ぎ、開発の主導権を人間が握り続けるために、私は Windsurf を利用する際に以下の手法で対応しています。
 
@@ -62,7 +60,8 @@ Windsurf のルール機能は、AI に対する「普遍的な指示書」で�
 | **グローバルルール** | プロジェクトを横断する普遍的な原則 | `global_rules.md` |
 | **プロジェクト固有ルール** | そのプロジェクト特有の技術スタック、ディレクトリ構成、命名規則など | `project_rules.md` |
 
-なお、それぞれ 12000 文字程度までのため、あまり長文のルールは避けた方が良いでしょう。
+現行の多くのモデルは Next.js 15 や React 19、TailwindCSS v4 固有の実装をたいてい失敗するので、プロジェクト固有ルールではとくにその辺りを重点的に伝えるようにしています。
+なお、Rules はそれぞれ 12000 文字程度までのため、あまり長文のルールは避けた方が良いでしょう。
 
 https://docs.windsurf.com/windsurf/cascade/memories
 
@@ -77,9 +76,9 @@ https://github.com/himorishige/windsurf-rules/blob/09706c6e5876459bbf358217ad72c
 - **Code Quality Guarantees**: DRY 原則やクリーンな設計など、具体的なコード品質に関する規約です。
 - **Security & Performance**: セキュリティやパフォーマンスに関する考慮点を定義しています。
 - **AI Communication Guidelines**: AI 自身が応答する際のルールです。どのルールに基づいて判断したかを明記させる（Rule Application Tracking）ことで、思考プロセスが透明になります。
-- **Feature-Based Development Workflow**: feature ブランチ開発のルールです。開発を小さなフィーチャー単位で行い、それぞれを独立してテストするという考え方を推奨しています。Planning Mode の登場でこのルールは若干調整するかも。
+- **Feature-Based Development Workflow**: feature ブランチ開発のルールです。開発を小さなフィーチャー単位で行い、それぞれを独立してテストするという考え方を推奨しています。`git worktree` を利用した並行開発は自分には使いこなせません…
 
-### 2： メモリ (Memories) で短期記憶をハックする
+### 2： メモリ (Memories) で短期記憶をコントロールする
 
 Memories は AI の短期記憶のようなものです。対話の中で得られた重要なコンテキストを記憶させることができますが、情報が古くなったり、不要な情報が溜まったりすることもあります。そのため、定期的に内容を見直し、メンテナンスすることが、AI の精度を保つ上で重要になります。
 
@@ -99,6 +98,7 @@ https://docs.windsurf.com/windsurf/cascade/planning-mode
 ### 4： `@`メンションで曖昧さをなくす
 
 「この関数を修正して」「あのファイルに追記して」といった曖昧な指示は、AI の誤解を招く原因になります。`@`メンションを使って修正対象のファイルやコードブロックを具体的に指定することで、指示の曖昧さを排除し、意図した通りの操作を AI に実行させることができます。
+さらに Windsurf ブラウザの登場でターミナル、エディターだけでなくブラウザからもコンテキストを直接渡すことができるようになっています。
 
 ### 5： 用途に合わせた適切なモデルの選択
 
@@ -117,7 +117,22 @@ LLMモデルの選択は、プランで利用できるクレジットとの兼�
 
 https://github.com/himorishige/windsurf-rules/blob/09706c6e5876459bbf358217ad72c3479d2bc0c7/.windsurf/workflows/ultra-think.md
 
-### 6: MCP の活用
+Windsurf Proプラン内で Claude Sonnet 4 使いたい🥹
+
+### 6: Workflows の活用
+
+Workflows を活用することで、複雑な指示を多角的に深掘りさせることが可能です。
+プロジェクトごとに異なる Workflows を利用することが多いため、Cascade に頼んで作ってもらうのが良いでしょう。
+
+プロジェクトによって内容は異なりますが、私は以下のような Workflows を作成して利用しています。
+- `/code-lint-formatting` : Lint とコードフォーマット
+- `/code-review` : コードレビュー
+- `/run-tests-and-fix` : テスト実行と修正
+- `/ultrathink` : オマージュコマンド、複雑な指示を多角的に深掘りさせる
+
+https://docs.windsurf.com/windsurf/cascade/workflows
+
+### 7: MCP の活用
 
 MCP もプロジェクトによって複数使い分けて利用していますが、最近はかなり絞って利用するようになってきました。よく利用している MCP は以下の通りです。
 
@@ -128,7 +143,7 @@ MCP もプロジェクトによって複数使い分けて利用しています�
 | [supabase](https://supabase.com/docs/guides/getting-started/mcp) | supabase に関する操作、ドキュメント参照など |
 | [cloudflare](https://developers.cloudflare.com/agents/model-context-protocol/) | cloudflare に関する操作、ドキュメント参照など |
 
-### 7: Windsurf に興味を持ったら
+### 8: Windsurf に興味を持ったら
 
 Windsurf のインストールから使い方、機能について Windsurf開発チームが動画で解説してくれています。
 
