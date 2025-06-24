@@ -2,7 +2,7 @@
 title: 'Windsurf 波乗りガイド: Wave 10'
 emoji: '🏄‍♂️'
 type: 'idea' # tech: 技術記事 / idea: アイデア
-topics: [windsurf, ポエム]
+topics: ["windsurf", "ポエム"]
 published: false
 ---
 
