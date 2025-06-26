@@ -67,7 +67,7 @@ https://docs.windsurf.com/windsurf/cascade/memories
 
 参考までに、私が現在利用しているグローバルルール（`global_rules.md`）を紹介します。このように開発の哲学を言語化しておくことで、AI との対話が格段にスムーズになります。（グローバルルールは [Manus](https://manus.im/app) に AI エディター向けガイドラインとして作成してもらい、日々少しずつ更新しながら活用しています）
 
-https://github.com/himorishige/windsurf-rules/blob/09706c6e5876459bbf358217ad72c3479d2bc0c7/global_rules_ja.md
+https://github.com/himorishige/windsurf-rules/blob/main/global_rules_ja.md
 
 #### `global_rules.md`の簡単な紹介
 
@@ -76,7 +76,7 @@ https://github.com/himorishige/windsurf-rules/blob/09706c6e5876459bbf358217ad72c
 - **Code Quality Guarantees**: DRY 原則やクリーンな設計など、具体的なコード品質に関する規約です。
 - **Security & Performance**: セキュリティやパフォーマンスに関する考慮点を定義しています。
 - **AI Communication Guidelines**: AI 自身が応答する際のルールです。どのルールに基づいて判断したかを明記させる（Rule Application Tracking）ことで、思考プロセスが透明になります。
-- **Feature-Based Development Workflow**: feature ブランチ開発のルールです。開発を小さなフィーチャー単位で行い、それぞれを独立してテストするという考え方を推奨しています。`git worktree` を利用した並行開発は自分には使いこなせません…
+~~- **Feature-Based Development Workflow**: feature ブランチ開発のルールです。開発を小さなフィーチャー単位で行い、それぞれを独立してテストするという考え方を推奨しています。`git worktree` を利用した並行開発は自分には使いこなせません…~~（Planning Mode 登場により大きく道を誤ることがなくなったためルールから削除しました）
 
 ### 2: メモリ (Memories) で短期記憶をコントロールする
 
