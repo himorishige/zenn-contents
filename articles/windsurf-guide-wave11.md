@@ -124,6 +124,8 @@ Wave 10 で Windsurf Browser が導入された際、その基本的な考え方
 
 **ブラウザコンテキスト収集**: 単純にページの内容を取得するだけでなく、開発に関連する情報を選択的に収集し、より効率的な問題解決を実現します。
 
+![browser context collection](/images/windsurf-guide-wave11/windsurf-browser.gif)
+
 Wave10 までは Windsurf ブラウザからユーザーがコンテキストを送る形のみでしたが、Cascade から`@メンション`でブラウザからコンテキストを取得できるようになりました。
 
 ### フロントエンド開発の革新
