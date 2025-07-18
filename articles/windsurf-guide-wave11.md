@@ -122,11 +122,15 @@ Wave 10 で Windsurf Browser が導入された際、その基本的な考え方
 
 **DOM tree 取得**: ブラウザの内部構造（DOM tree）を取得し、構造的な問題を分析できるようになりました。これにより、パフォーマンスの問題やアクセシビリティの課題を、より深いレベルで特定できます。
 
+![browser context collection](/images/windsurf-guide-wave11/windsurf-browser.gif)
+*音声インターフェイスを利用して DOM tree を取得する例*
+
 **ブラウザコンテキスト収集**: 単純にページの内容を取得するだけでなく、開発に関連する情報を選択的に収集し、より効率的な問題解決を実現します。
 
-![browser context collection](/images/windsurf-guide-wave11/windsurf-browser.gif)
+![browser context collection](/images/windsurf-guide-wave11/browser-context.png)
+*ブラウザコンテクストを取得するには Content collection をONにする*
 
-Wave10 までは Windsurf ブラウザからユーザーがコンテキストを送る形のみでしたが、Cascade から`@メンション`でブラウザからコンテキストを取得できるようになりました。
+Wave10 までは Windsurf ブラウザからユーザーがコンテキストを送る形のみでしたが、Cascade から明示的に`@メンション`する、または自然言語で伝えることで Windsurf ブラウザからコンテキストを取得できるようになりました。
 
 ### フロントエンド開発の革新
 
@@ -175,6 +179,9 @@ Wave 11 では、主要な新機能に加えて、日常的な開発体験を向
 ### auto-continue
 
 auto-continue 設定により、AI の応答が途中で止まることなく、継続的に作業を進められるようになりました。長いコードの生成や、複雑な説明を求める際に、この機能の恩恵を強く感じます。
+
+![auto-continue](/images/windsurf-guide-wave11/auto-continue.png)
+*デフォルトではOFF、ONにすると自動的に継続的に作業を進めるがその分クレジットを消費することになることは忘れずに*
 
 ### 改善された MCP OAuth 支援
 
