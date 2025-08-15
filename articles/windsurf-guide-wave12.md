@@ -2,7 +2,7 @@
 title: 'Windsurf 波乗りガイド: Wave 12'
 emoji: '🌊'
 type: 'idea'
-topics: ['windsurf', 'devin', 'ai', 'ポエム']
+topics: ['windsurf', 'devin', 'ポエム']
 published: false
 ---
 
