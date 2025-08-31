@@ -19,11 +19,14 @@ MCP サーバーが増えるほど、クライアントごとの設定ファイ�
 Hatago は **Hub コア**、**レジストリ（Tools/Resources/Prompts）**、**トランスポート層**の 3 層からなります。AI クライアントと複数の MCP サーバーの間に入り、JSON-RPC/MCP のやりとりを丁寧に中継します。特徴的なのは、**トランスポート非依存**の設計にしている点です。STDIO でつなごうが、HTTP(Streaming)/SSE/WS でつなごうが、上のロジックは同じように動きます。
 
 ```mermaid
-flowchart LR
-  A[AI Clients\n(Claude Code / Codex CLI / Cursor / Windsurf ...)]
-  A --> B[Hatago MCP Hub\n- Hub Core\n- Tool/Resource/Prompt Registries\n- Session Manager]
-  B --> C1[Local / NPX MCP\n(STDIO)]
-  B --> C2[Remote MCP\n(HTTP / SSE)]
+graph LR
+  A["AI Clients"]
+  B["Hatago MCP Hub"]
+  C1["Local / NPX MCP (STDIO)"]
+  C2["Remote MCP (HTTP / SSE)"]
+  A --> B
+  B --> C1
+  B --> C2
 ```
 
 内部的には、Hub が各 MCP サーバーから提供されるツール群を取りまとめて **統合カタログ** を形成します。ここで重要になるのが **ツール名の衝突回避** です。Hatago は公開名として `serverId_toolName` の形式を既定採用し、実行時には元の MCP サーバーに対して **正規のツール名** でリクエストを委譲します。クライアントから見れば、公開名は常に一意で、どのサーバーに属するかも分かりやすい、というわけです。
@@ -156,16 +159,16 @@ Hatago は **Node ランタイム** ではローカル MCP（`npx` や `node` �
 
 ## 設計のディテール
 
-- **ツール名の衝突回避**: 既定で `namespace` 戦略（`serverId_toolName`）。公開名は一意で、実行時は元サーバーの正規名に戻して委譲します。
-- **進捗の中継**: `notifications/progress` を受けて上流へそのまま転送。`progressToken` が付くケースでは二重配信を避ける最適化も行います。
-- **サンプリングの橋渡し**: 下位サーバーの `sampling/createMessage` を上位クライアントへ橋渡しし、レスポンス/プログレスを反射します。
-- **ホットリロード**: 設定ファイルの変更を検知して安全に再接続し、反映後に `notifications/tools/list_changed` を送出します。
+- **ツール名の衝突回避**では、既定で `namespace` 戦略（`serverId_toolName`）を採用します。公開名は常に一意で、実行時は元サーバーの正規名に戻して委譲します。
+- **進捗の中継**は、`notifications/progress` を受けて上流へそのまま転送します。`progressToken` が付く場合は二重配信を避ける最適化を行います。
+- **サンプリングの橋渡し**では、下位サーバーの `sampling/createMessage` を上位クライアントへ橋渡しし、レスポンス/プログレスを反射します。
+- **ホットリロード**は、設定ファイルの変更を検知して安全に再接続し、反映後に `notifications/tools/list_changed` を送出します。
 
 ここは黒魔術ではなく、MCP の素直な実装で積み上げています。ルーティングやレジストリの整備、イベントの流れを丁寧に保つことが最終的な使い心地に直結します。
 
 ## 運用のコツ
 
-設定ファイルでは **意味のあるサーバー ID**（`github-api`, `filesystem-tmp` のような名前）を付けておくと、公開名から所属がすぐ分かります。環境変数の展開を活用すれば、API のエンドポイントやトークン差し替えも一本化できます。トラブルシュート時は、まず `_internal_hatago_status` で全体像を押さえ、`_internal_hatago_list_servers` で個別接続を確認し、必要に応じて `_internal_hatago_reload` を叩く、という順で見ると早いです。
+設定ファイルでは **意味のあるサーバー ID**（`github-api`, `filesystem-tmp` のような名前）を付けておくと、公開名から所属がすぐ分かります。環境変数の展開を活用すれば、API のエンドポイントやトークン差し替えも一本化できます。トラブルシュートは次の順で確認してください：まず `_internal_hatago_status` で全体像、次に `_internal_hatago_list_servers` で個別接続、最後に必要に応じて `_internal_hatago_reload` を実行します（例：ツール一覧が更新されない →status、特定サーバーだけ反応がない →list_servers、設定変更を反映したい →reload）。
 
 :::message alert
 **ツールが増えない／消えた** と感じたら、設定の変更が反映されていない可能性があります。`--watch` を使うか、内部ツールでリロードしてみてください。それでも解決しない場合は、下位 MCP 側の起動エラーやタイムアウト、権限不足を疑いましょう。
@@ -183,4 +186,4 @@ Hub ロジックはパッケージとしても提供しており、Hono など�
 
 MCP の導入が進めば進むほど、設定の分散と運用コストは静かに増えます。Hatago MCP Hub は、その増加分を **「ハブ 1 本に寄せる」** ことで、クライアント横断の開発体験を保ちます。ツール名の衝突回避、進捗の透過中継、ホットリロード、内部ツールによる点検 ── どれも地味ですが、日々触れる「使い心地」を確実に底上げする要素です。
 
-まずは小さく、`hatago.config.json` に 2〜3 本の MCP をぶら下げてみてください。クライアント側の設定は **Hatago を 1 件登録するだけ**。そこから先は、必要に応じてサーバーを足したり引いたりしながら、あなたの開発現場に最適化していけます。
+まずは小さく、`hatago.config.json` に 2〜3 本の MCP をぶら下げて試してください。クライアント側の設定は **Hatago を 1 件登録するだけ**。その後は、たとえば「利用する MCP が 5 本を超えて管理が煩雑」「ツール名の重複が発生」「遅延が目立つクライアントを分離したい」といった具体的なタイミングで、サーバーを追加・削除して最適化していくと運用しやすいです。
