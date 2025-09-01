@@ -194,7 +194,7 @@ Claude Code からは、`hatago` を **1 件の MCP サーバー** として登�
 }
 ```
 
-#### HTTP
+#### Streamable HTTP
 
 ```json:.mcp.json
 {
@@ -227,7 +227,15 @@ args = [
 ]
 ```
 
-*2025/09/01時点ではHTTPには未対応*
+### Streamable HTTP
+
+```toml
+[mcp_servers.hatago]
+command = "npx"
+args = ["mcp-remote", "http://localhost:3535/mcp"]
+```
+
+*2025/09/01時点ではHTTPには未対応のためmcp-remoteを使用する必要があります*
 
 ### 複数クライアントから同時利用（HTTP 推奨）
 
