@@ -2,8 +2,8 @@
 title: 'Hatago MCP Hub で始めるマルチMCP運用 - ひとつの設定で全部つながる'
 emoji: '🏮'
 type: 'tech' # tech: 技術記事 / idea: アイデア
-topics: ['mcp', 'ai', 'cloudflare', 'hono', 'typescript']
-published: false
+topics: ['mcp', 'ai', 'cloudflare', 'hono', 'typescript', 'claudecode', 'codex']
+published: true
 ---
 
 ## はじめに
