@@ -1,5 +1,5 @@
 ---
-title: 'ひとつの設定で全部つながる：Hatago MCP Hub で始めるマルチMCP運用'
+title: 'Hatago MCP Hub で始めるマルチMCP運用 - ひとつの設定で全部つながる'
 emoji: '🏮'
 type: 'tech' # tech: 技術記事 / idea: アイデア
 topics: ['mcp', 'ai', 'cloudflare', 'hono', 'typescript']
