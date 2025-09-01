@@ -239,7 +239,7 @@ args = ["mcp-remote", "http://localhost:3535/mcp"]
 
 _2025/09/01 時点では HTTP には未対応のため [mcp-remote](https://www.npmjs.com/package/mcp-remote) が必要です_
 
-### 複数クライアントから同時利用（HTTP 推奨）
+### 複数クライアントから同時利用（HTTP 利用）
 
 チームで共通の Hatago にアクセスする場合は Streamable HTTP モードが便利です。Claude Code、Codex CLI、Cursor、Windsurf など複数クライアントが **同じ URL** に接続し、各自は Hatago だけを設定すれば、配下の MCP サーバーを一括で共有できます。運用上の更新は `hatago.config.json` を 1 か所触れば十分です。
 
@@ -327,10 +327,6 @@ sequenceDiagram
     User-->>User: 本番環境のツールも利用可能に
 ```
 
-### Claude Desktop
-
-Claude Desktop/Code のどちらでも、Hatago を 1 件登録するだけで同様に利用できます。STDIO でも Streamable HTTP でも構いません。
-
 ## Node と Workers の住み分け
 
 Hatago は **Node ランタイム** ではローカル MCP（`npx` や `node` で動かすもの）を含め、すべてのタイプを接続できます。一方で **Cloudflare Workers** のようなサーバーレス環境ではプロセス spawn ができないため、**HTTP/SSE で公開されたリモート MCP** をぶら下げる形が基本になります。設置場所は違っても、クライアントから見れば同じ Hatago です。
@@ -352,9 +348,7 @@ Hatago は **Node ランタイム** ではローカル MCP（`npx` や `node` �
 
 設定ファイルでは **意味のあるサーバー ID**（`github-api`, `filesystem-tmp` のような名前）を付けておくと、公開名から所属がすぐ分かります。環境変数の展開を活用すれば、API のエンドポイントやトークン差し替えも一本化できます。
 
-### トラブルシュート
-
-**MCP サーバーへの処理がタイムアウトする**
+**MCP サーバーへの処理がタイムアウトする場合**
 
 `notifications/progress` に対応していても、実装されていない MCP サーバーではタイムアウトしてしまう可能性があります。その場合は、Hatago の設定ファイルを編集して、タイムアウト時間を延ばすことができます。
 
