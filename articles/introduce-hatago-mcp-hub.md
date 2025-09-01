@@ -6,17 +6,17 @@ topics: ['mcp', 'ai', 'cloudflare', 'hono', 'typescript']
 published: false
 ---
 
-> **Hatago MCP Hub** は、複数の MCP サーバーを 1 つにまとめ、Claude Code / Cursor / Windsurf / Codex CLI など複数の AI クライアントから横断的に扱える **軽量Hub** です。本記事では、設計の背景からアーキテクチャ、設定方法、実運用のコツ、現状の制約までを紹介します。
+> **Hatago MCP Hub** は、複数の MCP サーバーを 1 つにまとめ、Claude Code / Cursor / Windsurf / Codex CLI など複数の AI クライアントから横断的に扱える **軽量 Hub** です。本記事では、設計の背景からアーキテクチャ、設定方法、実運用のコツ、現状の制約までを紹介します。
 
 ## なぜ Hatago MCP Hub を作ったのか
 
-MCP サーバーが増えるほど、クライアントごとの設定ファイル管理がじわじわ負担になります。ある日は `.mcp.json` を更新したのに、別のツール（たとえば TOML 設定の Codex CLI）では更新を忘れていた、ということも珍しくありません。[Docker Hub MCP Server](https://github.com/docker/hub-mcp) でまとめればいい、という声もあるでしょう。ただ、個々の現場の制約で Docker Desktop が使えない、あるいは **自由に MCP サーバーを選びたい** というニーズは根強く、結局それぞれのクライアントに対して個別設定を続けることになります。
+MCP サーバーが増えるほど、クライアントごとの設定ファイル管理が面倒になりませんか。`.mcp.json` を更新したのに、別のツール（TOML 設定の Codex CLI）では更新を忘れていた、ということも珍しくありません。同じような用途を果たすライブラリやツールも存在しています。たとえば、[Docker Hub MCP Server](https://github.com/docker/hub-mcp) でまとめればいい、という声もあるでしょう。ただ、個々の現場の制約で Docker Desktop が使えない、あるいは **自由に MCP サーバーを選びたい** というニーズは根強く、結局それぞれのクライアントに対して個別設定を続けることになります。
 
-こうした「設定の分散」を落ち着かせるために、**1 つの MCP サーバー（Hub）にまとめてしまい、クライアント側は Hatago だけを指す**── この方針が Hatago MCP Hub の出発点です。学習目的で始めた小さな実装でしたが、ツール名の衝突回避や進捗通知の中継、ホットリロードなど、実運用に必要な要素を搭載していった結果、今の形に落ち着きました。
+こうした「設定の分散」を落ち着かせるために、**1 つの MCP サーバー（Hub）にまとめてしまい、クライアント側は Hatago だけを使う**── この方針が Hatago MCP Hub の出発点です。MCP の学習目的で始めた小さな実装でしたが、ツール名の衝突回避や進捗通知の中継、ホットリロードなど、いろいろと実運用に必要な要素を検証していった結果、今の形に落ち着きました。
 
 ## Hatago MCP Hub の全体像
 
-Hatago は **Hub コア**、**レジストリ（Tools/Resources/Prompts）**、**トランスポート層**の 3 層からなります。AI クライアントと複数の MCP サーバーの間に入り、JSON-RPC/MCP のやりとりを丁寧に中継します。特徴としては、**トランスポート非依存**の設計にしている点です。STDIO でつなごうが、HTTP(Streaming)/SSE/WS でつなごうが、上のロジックは同じように動きます。
+Hatago は **Hub コア**、**レジストリ（Tools/Resources/Prompts）**、**トランスポート層**の 3 層からなります。AI クライアントと複数の MCP サーバーの間に入り、JSON-RPC/MCP のやりとりを丁寧に中継します。特徴としては、**トランスポート非依存**の設計にしている点です。STDIO でつなごうが、HTTP(Streaming)/SSE/WebSocket でつなごうが、上のロジックは同じように動きます。
 
 ```mermaid
 graph LR
@@ -29,9 +29,9 @@ graph LR
   B --> C2
 ```
 
-内部的には、Hub が各 MCP サーバーから提供されるツール群を取りまとめて **統合カタログ** を形成します。ここで重要になるのが **ツール名の衝突回避** です。Hatago は公開名として `serverId_toolName` の形式を既定採用し、実行時には元の MCP サーバーに対して **正規のツール名** でリクエストを委譲します。クライアントから見れば、公開名は常に一意で、どのサーバーに属するかも分かりやすい、というわけです。
+内部的には、Hub が各 MCP サーバーから提供されるツール群を取りまとめて **統合カタログ** を形成します。ここで重要になるのが **ツール名の衝突回避** です。Hatago は AI ツールへの公開名として `serverId_toolName` の形式を採用し、実行時には元の MCP サーバーに対して **正規のツール名** でリクエストを委譲します。クライアントから見れば、公開名は常に一意で、どのサーバーに属するかも分かりやすい、というわけです。
 
-もうひとつの要点は **進捗通知（notifications/progress）の透過中継** です。時間のかかる処理を走らせると、下位サーバーからプログレスが飛んできます。Hatago はそれをそのままクライアントに中継するので、上流の体験は損なわれません。サンプリング（`sampling/createMessage`）の橋渡しも同様で、下位が LLM 生成を要求してきたら、上位クライアントへ安全にバトンを渡し、結果を折り返します。
+もうひとつの要点は **進捗通知（notifications/progress）の透過中継** です。時間のかかる処理を走らせると、下位サーバーからプログレスが飛んできます。Hatago はそれをそのままクライアントに中継するので、上流の体験は損なわれません。サンプリング（`sampling/createMessage`）の橋渡しも同様で、下位が LLM 生成を要求してきたら、上位クライアントへ安全にバトンを渡し、結果を折り返します。ただ色々な MCP サーバーで検証してみたところ、まだ notification/progress を利用している MCP サーバーは少なそうです。また sampling を利用できる AI ツールもまだ少ないですが、そういうツールが増えることを想定して Hatago はそれらをサポートしています。
 
 ## セットアップ：最短ルート
 
@@ -56,15 +56,18 @@ npx @himorishige/hatago-mcp-hub init --mode http
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"],
+      "tags": ["dev", "local"]
     },
     "deepwiki": {
       "url": "https://mcp.deepwiki.com/sse",
-      "type": "sse"
+      "type": "sse",
+      "tags": ["dev", "production", "documentation"]
     },
     "api": {
       "url": "${API_BASE_URL:-https://api.example.com}/mcp",
-      "headers": { "Authorization": "Bearer ${API_KEY}" }
+      "headers": { "Authorization": "Bearer ${API_KEY}" },
+      "tags": ["production", "api"]
     }
   }
 }
@@ -86,6 +89,86 @@ hatago serve --stdio --watch
 :::message
 **内部ツール**が運用に便利です。`_internal_hatago_status` で接続状況を確認でき、`_internal_hatago_reload` で手動リロード、`_internal_hatago_list_servers` で配下サーバー一覧を取得できます。通常の MCP ツールと同じ要領で呼び出せます。
 :::
+
+## プロファイル管理：タグで環境を切り替える
+
+Hatago の **タグ機能** を使うと、開発・本番・テストなど、用途に応じて MCP サーバーをグループ化し、起動時に必要なものだけを選択できます。1 つの設定ファイルで複数の環境を管理できるため、チーム開発や個人の環境切り替えが格段に楽になります。
+
+### タグの設定方法
+
+`hatago.config.json` の各サーバーに `tags` フィールドを追加するだけです。日本語タグもサポートしているので、直感的な名前を付けられます。
+
+```json:hatago.config.json
+{
+  "mcpServers": {
+    "filesystem-dev": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./src"],
+      "tags": ["dev", "local", "開発"]
+    },
+    "github-api": {
+      "url": "https://api.github.com/mcp",
+      "headers": { "Authorization": "Bearer ${GITHUB_TOKEN}" },
+      "tags": ["dev", "production", "github"]
+    },
+    "database-prod": {
+      "command": "mcp-server-postgres",
+      "env": { "DATABASE_URL": "${PROD_DB_URL}" },
+      "tags": ["production", "本番", "database"]
+    },
+    "test-mock": {
+      "command": "node",
+      "args": ["./mocks/test-server.js"],
+      "tags": ["test", "テスト"]
+    }
+  }
+}
+```
+
+### タグによる起動
+
+`--tags` オプションで、起動するサーバーをフィルタリングできます。複数のタグを指定した場合、**いずれかのタグ**を持つサーバーが起動します。
+
+```bash
+# 開発環境のサーバーのみ起動
+hatago serve --tags dev
+
+# 本番環境のサーバーのみ起動
+hatago serve --tags production
+
+# 開発とテスト環境を同時に起動
+hatago serve --tags dev,test
+
+# 日本語タグでの指定も可能
+hatago serve --tags 開発,テスト
+```
+
+### 実運用シナリオ
+
+**シナリオ 1：個人開発での環境切り替え**
+朝は軽量な開発環境で作業し、デプロイ前には本番相当の環境でテストする、という使い分けが簡単になります。
+
+```bash
+# 開発作業（ローカル開発で必要なMCPサーバーのみ）
+hatago serve --tags local --watch
+
+# デプロイ前の検証（本番APIも含めて起動）
+hatago serve --tags local,production
+```
+
+**シナリオ 2：チーム開発での役割別プロファイル**
+フロントエンド開発者とバックエンド開発者で、必要な MCP サーバーが異なる場合も、同じ設定ファイルを共有できます。
+
+```bash
+# フロントエンド開発者
+hatago serve --tags frontend,mock
+
+# バックエンド開発者
+hatago serve --tags backend,database
+
+# フルスタック開発者
+hatago serve --tags frontend,backend,database
+```
 
 ## クライアント別の使い方
 
@@ -109,6 +192,10 @@ Claude Code からは、`hatago` を **1 件の MCP サーバー** として登�
 
 ツール名の衝突は Hatago 側で公開名に名前空間を付加して吸収し、実行時には正規のツール名で該当サーバーに委譲します。設定を変更したときは `--watch` で自動反映され、クライアントへ `tools/list_changed` が飛ぶので、リストが自動的に最新化されます。
 
+:::message
+残念ながら `tools/list_changed` はまだ未対応のクライアントが多いので、クライアントによっては手動で更新する必要があります。
+:::
+
 ### Codex CLI（TOML）
 
 Codex CLI は設定が TOML なので、Hatago に一元化する効果がより大きく感じられます。STDIO 起動での接続例は次のとおりです。
@@ -124,25 +211,90 @@ args = [
 
 ### 複数クライアントから同時利用（HTTP 推奨）
 
-チームで共通の Hatago にアクセスする場合は HTTP モードが便利です。Claude Code、Codex CLI、Cursor、Windsurf など複数クライアントが **同じ URL** に接続し、各自は Hatago だけを設定すれば、配下の MCP サーバーを一括で共有できます。運用上の更新は `hatago.config.json` を 1 か所触ればよく、`tools/list_changed` 通知によって各クライアントのツール一覧は自動で追従します。
+チームで共通の Hatago にアクセスする場合は HTTP モードが便利です。Claude Code、Codex CLI、Cursor、Windsurf など複数クライアントが **同じ URL** に接続し、各自は Hatago だけを設定すれば、配下の MCP サーバーを一括で共有できます。運用上の更新は `hatago.config.json` を 1 か所触ればよく、クライアントが対応していることが前提ですが、`tools/list_changed` 通知によって各クライアントのツール一覧は自動で追従します。
+
+#### タグ機能との組み合わせでさらに便利に
+
+タグ機能を活用すると、**同じ Hatago インスタンスを複数起動**して、用途別のエンドポイントを提供できます。開発チームでは開発用サーバー群、運用チームでは本番監視ツール群、といった使い分けが可能です。
+
+```mermaid
+graph TB
+    subgraph "開発チーム"
+        Dev1[Claude Code]
+        Dev2[Cursor]
+    end
+
+    subgraph "運用チーム"
+        Ops1[Codex CLI]
+        Ops2[Windsurf]
+    end
+
+    subgraph "Hatago インスタンス"
+        H1[Hatago:3535<br/>--tags dev,test]
+        H2[Hatago:3536<br/>--tags production,monitoring]
+    end
+
+    subgraph "MCP サーバー群"
+        direction LR
+        M1[filesystem<br/>tags: dev]
+        M2[github<br/>tags: dev,production]
+        M3[database<br/>tags: production]
+        M4[monitoring<br/>tags: monitoring]
+    end
+
+    Dev1 --> H1
+    Dev2 --> H1
+    Ops1 --> H2
+    Ops2 --> H2
+
+    H1 -.-> M1
+    H1 -.-> M2
+    H2 -.-> M2
+    H2 -.-> M3
+    H2 -.-> M4
+
+    style H1 fill:#e1f5fe
+    style H2 fill:#fff3e0
+```
+
+この構成により、各チームは自分たちに必要な MCP サーバーだけを見ることができ、不要なツールでリストが煩雑になることを防げます。
+
+```bash
+# 開発用 Hatago（ポート3535）
+hatago serve --http --port 3535 --tags dev,test
+
+# 運用用 Hatago（ポート3536）
+hatago serve --http --port 3536 --tags production,monitoring
+```
+
+#### プロファイル切り替えのフロー
+
+タグによるプロファイル切り替えは、起動時だけでなく、設定ファイルの変更と `--watch` オプションの組み合わせでも実現できます。
 
 ```mermaid
 sequenceDiagram
-  participant C1 as Claude Code
-  participant C2 as Codex CLI
-  participant C3 as Cursor
-  participant H as Hatago (HTTP/SSE)
-  participant S1 as MCP A
-  participant S2 as MCP B
+    participant User as 開発者
+    participant CLI as Hatago CLI
+    participant Hub as Hatago Hub
+    participant Config as hatago.config.json
+    participant Servers as MCP Servers
 
-  C1->>H: tools/list
-  C2->>H: tools/list
-  C3->>H: tools/list
-  H->>S1: listTools
-  H->>S2: listTools
-  H-->>C1: 統合ツール一覧（公開名）
-  H-->>C2: 統合ツール一覧（公開名）
-  H-->>C3: 統合ツール一覧（公開名）
+    User->>CLI: hatago serve --tags dev --watch
+    CLI->>Config: 設定読み込み
+    Config-->>CLI: サーバーリスト
+    CLI->>Hub: タグ "dev" でフィルタリング
+    Hub->>Servers: dev タグを持つサーバーのみ起動
+    Servers-->>Hub: 接続確立
+    Hub-->>User: 開発環境準備完了
+
+    Note over User,Config: 本番環境でのテストが必要になった
+
+    User->>Config: タグを追加編集
+    Config->>Hub: ファイル変更検知（--watch）
+    Hub->>Hub: 設定リロード
+    Hub->>Servers: production タグのサーバーも起動
+    Hub->>User: tools/list_changed 通知
+    User-->>User: 本番環境のツールも利用可能に
 ```
 
 ### Claude Desktop
@@ -154,10 +306,10 @@ Claude Desktop/Code のどちらでも、Hatago を 1 件登録するだけで�
 Hatago は **Node ランタイム** ではローカル MCP（`npx` や `node` で動かすもの）を含め、すべてのタイプを接続できます。一方で **Cloudflare Workers** のようなサーバーレス環境ではプロセス spawn ができないため、**HTTP/SSE で公開されたリモート MCP** をぶら下げる形が基本になります。設置場所は違っても、クライアントから見れば同じ Hatago です。
 
 :::message
-**Hono 製**なので、Workers 上でも Node 上でも、周辺のミドルウェアを載せ替えやすいのが利点です。運用で必要なログやヘッダ付与、認可チェックなども、アプリケーションコード側で自然に整理できます。
+**Hono 製**なので、Workers 上でも Node 上でも、周辺のミドルウェアを載せ替えやすいのが利点です。運用で必要なログやヘッダー付与、認可チェックなども、アプリケーションコード側で自然に整理できます。
 :::
 
-## 設計のディテール
+## 設計の詳細
 
 - **ツール名の衝突回避**では、既定で `namespace` 戦略（`serverId_toolName`）を採用します。公開名は常に一意で、実行時は元サーバーの正規名に戻して委譲します。
 - **進捗の中継**は、`notifications/progress` を受けて上流へそのまま転送します。`progressToken` が付く場合は二重配信を避ける最適化を行います。
@@ -168,22 +320,76 @@ Hatago は **Node ランタイム** ではローカル MCP（`npx` や `node` �
 
 ## 運用のコツ
 
-設定ファイルでは **意味のあるサーバー ID**（`github-api`, `filesystem-tmp` のような名前）を付けておくと、公開名から所属がすぐ分かります。環境変数の展開を活用すれば、API のエンドポイントやトークン差し替えも一本化できます。トラブルシュートは次の順で確認してください：まず `_internal_hatago_status` で全体像、次に `_internal_hatago_list_servers` で個別接続、最後に必要に応じて `_internal_hatago_reload` を実行します（例：ツール一覧が更新されない →status、特定サーバーだけ反応がない →list_servers、設定変更を反映したい →reload）。
+設定ファイルでは **意味のあるサーバー ID**（`github-api`, `filesystem-tmp` のような名前）を付けておくと、公開名から所属がすぐ分かります。環境変数の展開を活用すれば、API のエンドポイントやトークン差し替えも一本化できます。
 
-:::message alert
-**ツールが増えない／消えた** と感じたら、設定の変更が反映されていない可能性があります。`--watch` を使うか、内部ツールでリロードしてみてください。それでも解決しない場合は、下位 MCP 側の起動エラーやタイムアウト、権限不足を疑いましょう。
-:::
+### タグ設計のベストプラクティス
+
+タグ機能を最大限活用するには、以下のような設計がオススメです：
+
+1. **環境タグ**：`dev`, `staging`, `production` など、環境を表すタグ
+2. **機能タグ**：`database`, `api`, `filesystem` など、機能を表すタグ
+3. **チームタグ**：`frontend`, `backend`, `infra` など、チームや役割を表すタグ
+4. **日本語タグ**：`開発`, `本番`, `テスト` など、チーム内で分かりやすい名前
+
+```json
+{
+  "mcpServers": {
+    "main-db": {
+      "command": "mcp-postgres",
+      "tags": ["production", "database", "backend", "本番"]
+    },
+    "test-db": {
+      "command": "mcp-postgres-mock",
+      "tags": ["dev", "test", "database", "backend", "テスト"]
+    }
+  }
+}
+```
+
+このように複数の観点でタグを付けることで、柔軟な組み合わせが可能になります：
+
+```bash
+# バックエンド開発者が開発環境で作業
+hatago serve --tags backend,dev
+
+# データベース関連のツールだけを使いたい
+hatago serve --tags database
+
+# 本番環境の全ツール
+hatago serve --tags production
+```
+
+### トラブルシュート
+
+**MCPサーバーへの処理がタイムアウトする**
+
+`notification/progress` に対応しているMCPサーバーでは、タイムアウトが短く設定されていても処理が終わるまで待つことができますが、実装されていないMCPサーバーではタイムアウトしてしまう可能性があります。その場合は、Hatagoの設定ファイルを編集して、タイムアウト時間を延ばすことができます。
+
+```json:hatago.config.json
+{
+  "mcpServers": {
+    "api": {
+      "url": "${API_BASE_URL:-https://api.example.com}/mcp",
+      "headers": { "Authorization": "Bearer ${API_KEY}" },
+      "tags": ["production", "api"],
+      "timeouts": { "requestMs": 60000 } // デフォルトは 30000ms
+    }
+  }
+}
+```
 
 ## できないこと（現状の制約）
 
-Hatago は **認証をビルトインしません**。OAuth にも対応していないため、Bearer Token や Cookie ベースの認可は **Hono のミドルウェア**、あるいは **Cloudflare Zero Trust** などの上位レイヤーで実現する方針です。OAuth 必須のリモート MCP をぶら下げる場合は、相手の仕様に合わせて個別の拡張が必要になります。ここは各環境で要件がまちまちなので、まずはシンプルに通す、という哲学です。
+Hatago は **認証をビルトインしていません**。OAuth にも対応していないため、Bearer Token や Cookie ベースの認可は **Hono のミドルウェア**、あるいは **Cloudflare Zero Trust** などの上位レイヤーで実現する方針です。OAuth 必須のリモート MCP をぶら下げる場合は、相手の仕様に合わせて個別の拡張が必要になります。ここは各環境で要件がまちまちなので、まずはシンプルに通す、という哲学です。
 
 ## ライブラリとしての利用
 
-Hub ロジックはパッケージとしても提供しており、Hono など既存の HTTP アプリに **Hatago のハブ機能を組み込む** こともできます。API ゲートウェイや社内ポータルに軽量に溶け込ませて、チーム共通の MCP 集約ポイントを用意する、といった構成も現実的です。詳しくはリポジトリの `examples` を参照してください。
+Hub ロジックはパッケージ（`@himorishige/hatago-mcp-hub/node`、`@himorishige/hatago-mcp-hub/workers`）としても提供しており、Hono など既存の HTTP アプリケーションに **Hatago のハブ機能を組み込む** こともできます。API ゲートウェイや社内ポータルに軽量に溶け込ませて、チーム共通の MCP 集約ポイントを用意する、といった構成も現実的です。詳しくはリポジトリの [examples ディレクトリ](https://github.com/himorishige/hatago-mcp-hub/tree/main/examples) を参照してください。
 
 ## まとめ
 
 MCP の導入が進めば進むほど、設定の分散と運用コストは静かに増えます。Hatago MCP Hub は、その増加分を **「ハブ 1 本に寄せる」** ことで、クライアント横断の開発体験を保ちます。ツール名の衝突回避、進捗の透過中継、ホットリロード、内部ツールによる点検 ── どれも地味ですが、日々触れる「使い心地」を確実に底上げする要素です。
 
 まずは小さく、`hatago.config.json` に 2〜3 本の MCP をぶら下げて試してください。クライアント側の設定は **Hatago を 1 件登録するだけ**。その後は、たとえば「利用する MCP が 5 本を超えて管理が煩雑」「ツール名の重複が発生」「遅延が目立つクライアントを分離したい」といった具体的なタイミングで、サーバーを追加・削除して最適化していくと運用しやすいです。
+
+Hatago MCP Hub を気軽に使ってみて、ぜひフィードバックをいただけると嬉しいです。
