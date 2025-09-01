@@ -6,7 +6,9 @@ topics: ['mcp', 'ai', 'cloudflare', 'hono', 'typescript']
 published: false
 ---
 
-> **Hatago（旅籠） MCP Hub** は、複数の MCP サーバーを 1 つにまとめ、Claude Code / Cursor / Windsurf / Codex CLI など複数の AI クライアントから横断的に扱える **軽量 Hub** です。本記事では、設計の背景からアーキテクチャ、設定方法、運用方法、現状の制約を紹介します。
+## はじめに
+
+🏮 **Hatago（旅籠） MCP Hub** は、複数の MCP サーバーを 1 つにまとめ、Claude Code / Cursor / Windsurf / Codex CLI など複数の AI クライアントから横断的に扱える **軽量 MCP Hub** です。本記事では、設計の背景からアーキテクチャ、設定方法、運用方法、現状の制約を紹介します。
 
 https://github.com/himorishige/hatago-mcp-hub
 
