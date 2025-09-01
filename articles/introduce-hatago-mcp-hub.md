@@ -211,7 +211,7 @@ Claude Code からは、`hatago` を **1 件の MCP サーバー** として登�
 ツール名の衝突は Hatago 側で公開名に名前空間を付加して吸収し、実行時には正規のツール名で該当サーバーに委譲します。設定を変更したときは `--watch` で自動反映され、クライアントへ `notifications/tools/list_changed` が飛ぶので、リストが自動的に最新化されます。
 
 :::message
-残念ながら `notifications/tools/list_changed` はまだ未対応のクライアントが多いので、クライアントによっては手動で更新する必要があります。
+残念ながら `notifications/tools/list_changed` はまだ未対応のクライアントが多いので、クライアントによっては手動で更新してください🙏
 :::
 
 ### Codex CLI
@@ -237,7 +237,7 @@ command = "npx"
 args = ["mcp-remote", "http://localhost:3535/mcp"]
 ```
 
-_2025/09/01 時点では HTTP には未対応のため mcp-remote を使用する必要があります_
+_2025/09/01 時点では HTTP には未対応のため mcp-remote が必要です_
 
 ### 複数クライアントから同時利用（HTTP 推奨）
 
