@@ -6,7 +6,9 @@ topics: ['mcp', 'ai', 'cloudflare', 'hono', 'typescript']
 published: false
 ---
 
-> **Hatago MCP Hub** は、複数の MCP サーバーを 1 つにまとめ、Claude Code / Cursor / Windsurf / Codex CLI など複数の AI クライアントから横断的に扱える **軽量 Hub** です。本記事では、設計の背景からアーキテクチャ、設定方法、実運用のコツ、現状の制約までを紹介します。
+> **Hatago（旅籠） MCP Hub** は、複数の MCP サーバーを 1 つにまとめ、Claude Code / Cursor / Windsurf / Codex CLI など複数の AI クライアントから横断的に扱える **軽量 Hub** です。本記事では、設計の背景からアーキテクチャ、設定方法、運用方法、現状の制約を紹介します。
+
+https://github.com/himorishige/hatago-mcp-hub
 
 ## なぜ Hatago MCP Hub を作ったのか
 
@@ -16,7 +18,7 @@ MCP サーバーが増えるほど、クライアントごとの設定ファイ�
 
 ## Hatago MCP Hub の全体像
 
-Hatago は **Hub コア**、**レジストリ（Tools/Resources/Prompts）**、**トランスポート層**の 3 層からなります。AI クライアントと複数の MCP サーバーの間に入り、JSON-RPC/MCP のやりとりを丁寧に中継します。特徴としては、**トランスポート非依存**の設計にしている点です。STDIO でつなごうが、HTTP(Streaming)/SSE/WebSocket でつなごうが、上のロジックは同じように動きます。
+Hatago は **Hub コア**、**レジストリ（Tools/Resources/Prompts）**、**トランスポート層**の 3 層からなります。AI クライアントと複数の MCP サーバーの間に入り、JSON-RPC/MCP のやりとりを中継します。特徴としては、**トランスポート非依存**の設計にしている点です。STDIO でつなごうが、HTTP/SSE/WebSocket でつなごうが、上のロジックは同じように動きます。
 
 ```mermaid
 graph LR
@@ -31,7 +33,7 @@ graph LR
 
 内部的には、Hub が各 MCP サーバーから提供されるツール群を取りまとめて **統合カタログ** を形成します。ここで重要になるのが **ツール名の衝突回避** です。Hatago は AI ツールへの公開名として `serverId_toolName` の形式を採用し、実行時には元の MCP サーバーに対して **正規のツール名** でリクエストを委譲します。クライアントから見れば、公開名は常に一意で、どのサーバーに属するかも分かりやすい、というわけです。
 
-もうひとつの要点は **進捗通知（notifications/progress）の透過中継** です。時間のかかる処理を走らせると、下位サーバーからプログレスが飛んできます。Hatago はそれをそのままクライアントに中継するので、上流の体験は損なわれません。サンプリング（`sampling/createMessage`）の橋渡しも同様で、下位が LLM 生成を要求してきたら、上位クライアントへ安全にバトンを渡し、結果を折り返します。ただ色々な MCP サーバーで検証してみたところ、まだ notification/progress を利用している MCP サーバーは少なそうです。また sampling を利用できる AI ツールもまだ少ないですが、そういうツールが増えることを想定して Hatago はそれらをサポートしています。
+もうひとつの要点は **進捗通知（notifications/progress）の透過中継** です。時間のかかる処理を走らせると、下位サーバーからプログレスが飛んできます。Hatago はそれをそのままクライアントに中継するので、上流の体験は損なわれません。サンプリング（`sampling/createMessage`）の橋渡しも同様で、下位が LLM 生成を要求してきたら、上位クライアントへ安全にバトンを渡し、結果を折り返します。ただ色々な MCP サーバーで検証してみたところ、まだ `notifications/progress` を利用している MCP サーバーは少なそうです。また `sampling` を利用できる AI ツールもまだ少ないですが、そういうツールが増えることを想定して Hatago はそれらをサポートしています。
 
 ## セットアップ：最短ルート
 
@@ -73,13 +75,13 @@ npx @himorishige/hatago-mcp-hub init --mode http
 }
 ```
 
-起動はシンプルです。1 クライアントで使うなら STDIO、複数クライアントから共有したいなら HTTP(Streaming) を選びます。設定変更を監視しながら動かす `--watch` も用意しています。
+起動はシンプルです。1 クライアントで使うなら STDIO、複数クライアントから共有したいなら HTTP を選びます。設定変更を監視しながら動かす `--watch` も用意しています。
 
 ```bash
 # STDIO モード（Claude Code などに最適）
 hatago serve --stdio --config ./hatago.config.json
 
-# HTTP(Streaming) モード（複数クライアントで共有）
+# HTTP モード（複数クライアントで共有）
 hatago serve --http  --config ./hatago.config.json
 
 # 設定のホットリロード
@@ -149,7 +151,7 @@ hatago serve --tags 開発,テスト
 朝は軽量な開発環境で作業し、デプロイ前には本番相当の環境でテストする、という使い分けが簡単になります。
 
 ```bash
-# 開発作業（ローカル開発で必要なMCPサーバーのみ）
+# 開発作業（ローカル開発で必要な MCP サーバーのみ）
 hatago serve --tags local --watch
 
 # デプロイ前の検証（本番APIも含めて起動）
@@ -172,9 +174,11 @@ hatago serve --tags frontend,backend,database
 
 ## クライアント別の使い方
 
-### Claude Code（STDIO）
+### Claude Code
 
 Claude Code からは、`hatago` を **1 件の MCP サーバー** として登録するだけで、Hatago 配下のすべての MCP ツールが統合リストとして見えるようになります。設定例は以下のとおりです。
+
+#### STDIO
 
 ```json:.mcp.json
 {
@@ -190,15 +194,29 @@ Claude Code からは、`hatago` を **1 件の MCP サーバー** として登�
 }
 ```
 
-ツール名の衝突は Hatago 側で公開名に名前空間を付加して吸収し、実行時には正規のツール名で該当サーバーに委譲します。設定を変更したときは `--watch` で自動反映され、クライアントへ `tools/list_changed` が飛ぶので、リストが自動的に最新化されます。
+#### HTTP
+
+```json:.mcp.json
+{
+  "mcpServers": {
+    "hatago": {
+      "url": "http://localhost:3535/mcp",
+    }
+  }
+}
+```
+
+ツール名の衝突は Hatago 側で公開名に名前空間を付加して吸収し、実行時には正規のツール名で該当サーバーに委譲します。設定を変更したときは `--watch` で自動反映され、クライアントへ `notifications/tools/list_changed` が飛ぶので、リストが自動的に最新化されます。
 
 :::message
-残念ながら `tools/list_changed` はまだ未対応のクライアントが多いので、クライアントによっては手動で更新する必要があります。
+残念ながら `notifications/tools/list_changed` はまだ未対応のクライアントが多いので、クライアントによっては手動で更新する必要があります。
 :::
 
-### Codex CLI（TOML）
+### Codex CLI
 
 Codex CLI は設定が TOML なので、Hatago に一元化する効果がより大きく感じられます。STDIO 起動での接続例は次のとおりです。
+
+#### STDIO
 
 ```toml:codex.toml
 [mcp_servers.hatago]
@@ -209,9 +227,11 @@ args = [
 ]
 ```
 
+*2025/09/01時点ではHTTPには未対応*
+
 ### 複数クライアントから同時利用（HTTP 推奨）
 
-チームで共通の Hatago にアクセスする場合は HTTP モードが便利です。Claude Code、Codex CLI、Cursor、Windsurf など複数クライアントが **同じ URL** に接続し、各自は Hatago だけを設定すれば、配下の MCP サーバーを一括で共有できます。運用上の更新は `hatago.config.json` を 1 か所触ればよく、クライアントが対応していることが前提ですが、`tools/list_changed` 通知によって各クライアントのツール一覧は自動で追従します。
+チームで共通の Hatago にアクセスする場合は HTTP モードが便利です。Claude Code、Codex CLI、Cursor、Windsurf など複数クライアントが **同じ URL** に接続し、各自は Hatago だけを設定すれば、配下の MCP サーバーを一括で共有できます。運用上の更新は `hatago.config.json` を 1 か所触れば十分です。
 
 #### タグ機能との組み合わせでさらに便利に
 
@@ -277,7 +297,7 @@ sequenceDiagram
     participant CLI as Hatago CLI
     participant Hub as Hatago Hub
     participant Config as hatago.config.json
-    participant Servers as MCP Servers
+    participant Servers as MCP サーバー
 
     User->>CLI: hatago serve --tags dev --watch
     CLI->>Config: 設定読み込み
@@ -293,13 +313,13 @@ sequenceDiagram
     Config->>Hub: ファイル変更検知（--watch）
     Hub->>Hub: 設定リロード
     Hub->>Servers: production タグのサーバーも起動
-    Hub->>User: tools/list_changed 通知
+    Hub->>User: ツール一覧の更新を通知
     User-->>User: 本番環境のツールも利用可能に
 ```
 
 ### Claude Desktop
 
-Claude Desktop/Code のどちらでも、Hatago を 1 件登録するだけで同様に利用できます。STDIO でも HTTP でも構いません。長めの処理では、下位 MCP から上がってくる進捗がそのまま転送されるため、画面上のフィードバックは途切れません。
+Claude Desktop/Code のどちらでも、Hatago を 1 件登録するだけで同様に利用できます。STDIO でも HTTP でも構いません。
 
 ## Node と Workers の住み分け
 
@@ -347,23 +367,13 @@ Hatago は **Node ランタイム** ではローカル MCP（`npx` や `node` �
 ```
 
 このように複数の観点でタグを付けることで、柔軟な組み合わせが可能になります：
-
-```bash
-# バックエンド開発者が開発環境で作業
-hatago serve --tags backend,dev
-
-# データベース関連のツールだけを使いたい
-hatago serve --tags database
-
-# 本番環境の全ツール
-hatago serve --tags production
-```
+具体的な起動例は前節「タグによる起動」および「実運用シナリオ」を参照してください。
 
 ### トラブルシュート
 
-**MCPサーバーへの処理がタイムアウトする**
+**MCP サーバーへの処理がタイムアウトする**
 
-`notification/progress` に対応しているMCPサーバーでは、タイムアウトが短く設定されていても処理が終わるまで待つことができますが、実装されていないMCPサーバーではタイムアウトしてしまう可能性があります。その場合は、Hatagoの設定ファイルを編集して、タイムアウト時間を延ばすことができます。
+`notifications/progress` に対応していても、実装されていない MCP サーバーではタイムアウトしてしまう可能性があります。その場合は、Hatago の設定ファイルを編集して、タイムアウト時間を延ばすことができます。
 
 ```json:hatago.config.json
 {
@@ -388,8 +398,10 @@ Hub ロジックはパッケージ（`@himorishige/hatago-mcp-hub/node`、`@himo
 
 ## まとめ
 
-MCP の導入が進めば進むほど、設定の分散と運用コストは静かに増えます。Hatago MCP Hub は、その増加分を **「ハブ 1 本に寄せる」** ことで、クライアント横断の開発体験を保ちます。ツール名の衝突回避、進捗の透過中継、ホットリロード、内部ツールによる点検 ── どれも地味ですが、日々触れる「使い心地」を確実に底上げする要素です。
+MCP の導入が進めば進むほど、設定の分散と運用コストは地味に増えます。Hatago MCP Hub は、その増加分を **「ハブ 1 本に寄せる」** ことで、日々の開発体験を保ちます。ツール名の衝突回避、進捗の透過中継、ホットリロード、内部ツールによる点検 ── どれも地味ですが、「使い心地」を確実に底上げできるのはないでしょうか。
 
-まずは小さく、`hatago.config.json` に 2〜3 本の MCP をぶら下げて試してください。クライアント側の設定は **Hatago を 1 件登録するだけ**。その後は、たとえば「利用する MCP が 5 本を超えて管理が煩雑」「ツール名の重複が発生」「遅延が目立つクライアントを分離したい」といった具体的なタイミングで、サーバーを追加・削除して最適化していくと運用しやすいです。
+まずは小さく、`hatago.config.json` に 2〜3 本の MCP をぶら下げて試してください。クライアント側の設定は **Hatago を 1 件登録するだけ**。その後は、たとえば「利用する MCP が 5 本を超えて管理が煩雑」「ツール名の重複が発生」「遅延が目立つクライアントを分離したい」といった具体的なタイミングで、サーバーを追加・削除して最適化していくと運用しやすいと思います。
 
 Hatago MCP Hub を気軽に使ってみて、ぜひフィードバックをいただけると嬉しいです。
+
+https://github.com/himorishige/hatago-mcp-hub
