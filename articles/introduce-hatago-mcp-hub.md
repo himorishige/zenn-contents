@@ -377,11 +377,11 @@ https://developers.cloudflare.com/agents/model-context-protocol/authorization/
 
 ## ライブラリとしての利用
 
-Hub ロジックはパッケージ（`@himorishige/hatago-mcp-hub/node`、`@himorishige/hatago-mcp-hub/workers`）としても提供しており、Hono など既存の HTTP アプリケーションに **Hatago のハブ機能を組み込む** こともできます。API ゲートウェイや社内ポータルに軽量に溶け込ませて、チーム共通の MCP 集約ポイントを用意する、といった構成も現実的です。詳しくはリポジトリの [examples ディレクトリ](https://github.com/himorishige/hatago-mcp-hub/tree/main/examples) を参照してください。
+Hub ロジックはパッケージ（`@himorishige/hatago-mcp-hub/node`、`@himorishige/hatago-mcp-hub/workers`）としても提供しており、Hono など既存の HTTP アプリケーションに **Hatago の Hub 機能を組み込む** こともできます。API ゲートウェイや社内ポータルに軽量に溶け込ませて、チーム共通の MCP 集約ポイントを用意する、といった構成も現実的です。詳しくはリポジトリの [examples ディレクトリ](https://github.com/himorishige/hatago-mcp-hub/tree/main/examples) を参照してください。
 
 ## まとめ
 
-MCP の導入が進めば進むほど、設定の分散と運用コストは地味に増えます。Hatago MCP Hub は、その増加分を **「ハブ 1 本に寄せる」** ことで、日々の開発体験を保ちます。ツール名の衝突回避、進捗の透過中継、ホットリロード、内部ツールによる点検 ── どれも地味ですが、「使い心地」を確実に底上げできるのはないでしょうか。
+MCP の導入が進めば進むほど、設定の分散と運用コストは地味に増えます。Hatago MCP Hub は、その増加分を **「Hub 1 本に寄せる」** ことで、日々の開発体験を保ちます。ツール名の衝突回避、進捗の透過中継、ホットリロード、内部ツールによる点検 ── どれも地味ですが、「使い心地」を確実に底上げできるのはないでしょうか。
 
 まずは小さく、`hatago.config.json` に 2〜3 本の MCP をぶら下げて試してください。クライアント側の設定は **Hatago を 1 件登録するだけ**。その後は、たとえば「利用する MCP が 5 本を超えて管理が煩雑」「ツール名の重複が発生」「遅延が目立つクライアントを分離したい」といった具体的なタイミングで、サーバーを追加・削除して最適化していくと運用しやすいと思います。
 
