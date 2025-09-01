@@ -237,7 +237,7 @@ command = "npx"
 args = ["mcp-remote", "http://localhost:3535/mcp"]
 ```
 
-_2025/09/01 時点では HTTP には未対応のため mcp-remote が必要です_
+_2025/09/01 時点では HTTP には未対応のため [mcp-remote](https://www.npmjs.com/package/mcp-remote) が必要です_
 
 ### 複数クライアントから同時利用（HTTP 推奨）
 
