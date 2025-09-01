@@ -8,7 +8,7 @@ published: false
 
 ## はじめに
 
-🏮 **Hatago（旅籠） MCP Hub** は、複数の MCP サーバーを 1 つにまとめ、Claude Code / Cursor / Windsurf / Codex CLI など複数の AI クライアントから横断的に扱える **軽量 MCP Hub** です。本記事では、設計の背景からアーキテクチャ、設定方法、運用方法、現状の制約を紹介します。
+🏮 **Hatago（旅籠） MCP Hub** は、複数の MCP サーバーを 1 つにまとめ、Claude Code / Cursor / Windsurf / Codex CLI など複数の AI クライアントから横断的に扱える **軽量 MCP Hub** です。Hono の上にミドルウェア的に配置することで、複数の MCP サーバーを統合して、より柔軟に運用できる仕組みを提供します。本記事では、設計の背景からアーキテクチャ、設定方法、運用方法、現状の制約を紹介します。
 
 https://github.com/himorishige/hatago-mcp-hub
 
@@ -237,7 +237,7 @@ command = "npx"
 args = ["mcp-remote", "http://localhost:3535/mcp"]
 ```
 
-*2025/09/01時点ではHTTPには未対応のためmcp-remoteを使用する必要があります*
+_2025/09/01 時点では HTTP には未対応のため mcp-remote を使用する必要があります_
 
 ### 複数クライアントから同時利用（HTTP 推奨）
 
