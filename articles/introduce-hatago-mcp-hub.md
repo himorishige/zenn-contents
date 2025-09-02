@@ -388,3 +388,5 @@ MCP の導入が進めば進むほど、設定の分散と運用コストは地�
 Hatago MCP Hub を気軽に使ってみて、ぜひフィードバックをいただけると嬉しいです。
 
 https://github.com/himorishige/hatago-mcp-hub
+
+https://zenn.dev/himorishige/articles/hatago-with-ai-dlc
