@@ -3,7 +3,7 @@ title: 'Hatago MCP Hub を AI-DLC の考え方で開発してみた'
 emoji: '🏮'
 type: 'idea' # tech: 技術記事 / idea: アイデア
 topics: ['mcp', 'ai', 'claudecode', 'codex']
-published: false
+published: true
 ---
 
 ## はじめに
