@@ -77,7 +77,7 @@ npx @himorishige/hatago-mcp-hub init --mode http
 }
 ```
 
-起動はシンプルです。1 クライアントで使うなら STDIO、複数クライアントから共有したいなら Streamable HTTP を選びます。設定変更を監視しながら動かす `--watch` も用意しています。
+起動はシンプルです。1 クライアントで使うなら STDIO、複数クライアントからひとつの MCP サーバーとして共有したいなら Streamable HTTP を選びます。
 
 ```bash
 # STDIO モード（Claude Code などに最適）
@@ -85,14 +85,7 @@ hatago serve --stdio --config ./hatago.config.json
 
 # HTTP モード（複数クライアントで共有）
 hatago serve --http  --config ./hatago.config.json
-
-# 設定のホットリロード
-hatago serve --stdio --watch
 ```
-
-:::message
-**内部ツール**が運用に便利です。`_internal_hatago_status` で接続状況を確認でき、`_internal_hatago_reload` で手動リロード、`_internal_hatago_list_servers` で配下サーバー一覧を取得できます。通常の MCP ツールと同じ要領で呼び出せます。
-:::
 
 ## プロファイル管理：タグで環境を切り替える
 
@@ -149,29 +142,14 @@ hatago serve --tags 開発,テスト
 
 ### 実運用シナリオ
 
-**シナリオ 1：個人開発での環境切り替え**
-朝は軽量な開発環境で作業し、デプロイ前には本番相当の環境でテストする、という使い分けが簡単になります。
+たとえば、Claude Codeでは、AとB、Codex CLIではBとCというように、ひとつの設定ファイルで異なるツールを起動できます。
 
 ```bash
-# 開発作業（ローカル開発で必要な MCP サーバーのみ）
-hatago serve --tags local --watch
+# Claude Code
+hatago serve --config ~/hatago.config.json --tags a,b
 
-# デプロイ前の検証（本番APIも含めて起動）
-hatago serve --tags local,production
-```
-
-**シナリオ 2：チーム開発での役割別プロファイル**
-フロントエンド開発者とバックエンド開発者で、必要な MCP サーバーが異なる場合も、同じ設定ファイルを共有できます。
-
-```bash
-# フロントエンド開発者
-hatago serve --tags frontend,mock
-
-# バックエンド開発者
-hatago serve --tags backend,database
-
-# フルスタック開発者
-hatago serve --tags frontend,backend,database
+# Codex CLI
+hatago serve --config ~/hatago.config.json --tags b,c
 ```
 
 ## クライアント別の使い方
@@ -188,8 +166,8 @@ Claude Code からは、`hatago` を **1 件の MCP サーバー** として登�
     "hatago": {
       "command": "npx",
       "args": [
-        "@himorishige/hatago-mcp-hub", "serve", "--stdio",
-        "--config", "/ABS/PATH/hatago.config.json"
+        "@himorishige/hatago-mcp-hub", "serve",
+        "--config", "/ABS/PATH/hatago.config.json", "--tags", "dev"
       ]
     }
   }
@@ -224,8 +202,8 @@ Codex CLI は設定が TOML なので、Hatago に一元化する効果がより
 [mcp_servers.hatago]
 command = "npx"
 args = [
-  "-y", "@himorishige/hatago-mcp-hub", "serve",
-  "--stdio", "--config", "/ABS/PATH/hatago.config.json"
+  "-y", "@himorishige/hatago-mcp-hub@latest", "serve",
+  "--config", "/ABS/PATH/hatago.config.json", "--tags", "dev"
 ]
 ```
 
