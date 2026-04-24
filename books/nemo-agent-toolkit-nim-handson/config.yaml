@@ -1,0 +1,8 @@
+title: 'クラウド NIM + Docker ではじめる NeMo Agent Toolkit ハンズオン'
+summary: 'NVIDIA NeMo Agent Toolkit を、GPU 不要のクラウド NIM と Colima + Docker で一から学ぶハンズオン本。基礎の ReAct エージェントから RAG、マルチエージェント、評価、デプロイまで段階的に積み上げます。'
+topics: ['nvidia', 'llm', 'docker', 'python', 'agent']
+published: false
+# price: 無料公開のため指定しない
+# chapters は章執筆完了のタイミングで順次追加する
+chapters:
+  - 00-intro
