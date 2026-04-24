@@ -15,3 +15,4 @@ chapters:
   - 07-phoenix-observability
   - 08-mcp-integration
   - 09-rag-milvus
+  - 10-rag-operations
