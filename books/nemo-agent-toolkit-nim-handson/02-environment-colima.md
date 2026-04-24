@@ -1,6 +1,5 @@
 ---
 title: "第 2 章 環境を整える（Colima + Docker + NGC）"
-free: true
 ---
 
 この章では、本書のハンズオン全章で使う実行環境をセットアップします。具体的には、Docker ランタイム（Colima または Docker Desktop）、`docker compose` の動作確認、NGC API key の取得、NAT 実行用のベースイメージのビルドまでを一気に整えます。

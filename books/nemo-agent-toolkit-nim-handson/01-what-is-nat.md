@@ -1,6 +1,5 @@
 ---
 title: "第 1 章 NeMo Agent Toolkit とは何か"
-free: true
 ---
 
 第 1 章では、本書のテーマである NVIDIA NeMo Agent Toolkit（以下 NAT）の立ち位置を俯瞰します。この章にハンズオンは登場しません。第 2 章から手を動かし始める前に、「NAT はそもそも何を狙ったツールキットなのか」「LangChain や LangGraph とはどう違うのか」を押さえておくと、以降の章の YAML の読み解きがぐっとラクになります。
