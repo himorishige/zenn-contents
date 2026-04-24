@@ -16,3 +16,4 @@ chapters:
   - 08-mcp-integration
   - 09-rag-milvus
   - 10-rag-operations
+  - 11-multi-agent-router
