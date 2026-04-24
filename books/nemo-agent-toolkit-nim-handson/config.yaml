@@ -10,3 +10,4 @@ chapters:
   - 02-environment-colima
   - 03-hello-agent
   - 04-yaml-anatomy
+  - 05-builtin-tools
