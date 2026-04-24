@@ -12,3 +12,4 @@ chapters:
   - 04-yaml-anatomy
   - 05-builtin-tools
   - 06-agent-patterns
+  - 07-phoenix-observability
