@@ -37,7 +37,7 @@ graph LR
     R -->|日付系| D["current_datetime"]
     R -->|一般知識| W["Wiki Agent"]
     R -->|NVIDIA 製品| K["RAG Agent<br/>(Milvus Lite)"]
-    W --> LLM1["NIM<br/>Llama 3.1 8B"]
+    W --> LLM1["NIM<br/>Nemotron Super 49B"]
     K --> LLM1
     D --> O["回答"]
     LLM1 --> O
@@ -109,7 +109,7 @@ docker compose run --rm nat
 | -------------- | --------------------------------------------- |
 | nvidia-nat     | 1.6.0                                         |
 | Python         | 3.12（Docker イメージ側）                     |
-| workflow LLM   | meta/llama-3.1-8b-instruct（NIM）             |
+| workflow LLM   | nvidia/llama-3.3-nemotron-super-49b-v1（NIM） |
 | judge LLM      | nvidia/llama-3.3-nemotron-super-49b-v1（NIM） |
 | Embedding      | nvidia/nv-embedqa-e5-v5（NIM）                |
 | Phoenix        | 14.8.0                                        |

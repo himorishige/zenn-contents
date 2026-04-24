@@ -41,7 +41,7 @@ general:
 llms:
   nim_llm:
     _type: nim
-    model_name: meta/llama-3.1-8b-instruct
+    model_name: nvidia/llama-3.3-nemotron-super-49b-v1
     api_key: ${NGC_API_KEY}
     temperature: 0.0
     max_tokens: 512
@@ -62,7 +62,7 @@ workflow:
 
 `general` はランタイム寄りの設定です。`use_uvloop: true` は Python の非同期 I/O ループを uvloop に差し替えるオプションで、NAT のデフォルト推奨値です。迷ったら触らなくて大丈夫です。
 
-`llms` では使う LLM を宣言します。`nim_llm` という名前で、`_type: nim` を指定して NIM クラウドに向けています。`model_name` は `meta/llama-3.1-8b-instruct`、本書の workflow 用の基準モデルです。`api_key: ${NGC_API_KEY}` は環境変数展開で、実際のキーは `.env` 側に置いてコミットから逃がします。
+`llms` では使う LLM を宣言します。`nim_llm` という名前で、`_type: nim` を指定して NIM クラウドに向けています。`model_name` は `nvidia/llama-3.3-nemotron-super-49b-v1`、本書の workflow 用の基準モデルです。`api_key: ${NGC_API_KEY}` は環境変数展開で、実際のキーは `.env` 側に置いてコミットから逃がします。
 
 `functions` には使えるツールを並べます。ここでは組み込みの `current_datetime`（現在時刻を返すだけ）を登録しています。第 5 章で web_search や wikipedia_search を追加していく予定ですが、まずは動作を追いやすい最小構成です。
 
@@ -150,7 +150,7 @@ sequenceDiagram
     participant User as docker compose run
     participant Builder as NAT Builder
     participant LG as LangGraph ReAct
-    participant NIM as NIM (Llama 3.1 8B)
+    participant NIM as NIM (Nemotron Super 49B)
     participant Tool as current_datetime
 
     User->>Builder: workflow.yml を読んで<br/>Function / LLM / Workflow を構築
@@ -177,7 +177,7 @@ docker compose run --rm nat \
   --input "Tell me the current date in Japanese."
 ```
 
-`Final Answer: 今日の日付は 2026 年 4 月 24 日です。` のように日本語で返せば成功です。モデルが Llama 3.1 8B なので、込み入った日本語は苦手なこともあります。次章で YAML の他のパラメータを触っていく中で、温度・max_tokens・system prompt の効き方を確かめていきます。
+`Final Answer: 今日の日付は 2026 年 4 月 24 日です。` のように日本語で返せば成功です。Nemotron Super 49B は日本語にも安定して応答しますが、質問を日本語にすると応答も日本語に寄るという挙動があります。次章で YAML の他のパラメータを触っていく中で、温度・max_tokens・system prompt の効き方を確かめていきます。
 
 ## よくある詰まりどころ
 

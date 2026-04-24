@@ -241,13 +241,13 @@ content='The founder of NVIDIA is Jensen Huang, Chris Malachowsky, and Curtis Pr
 
 Tool Calling の強みは「LLM 出力の構造が固い」ことです。tool 呼び出しは JSON schema に従うため、パース失敗が起こりにくく、CI 組み込みや本番運用で扱いやすい特性があります。
 
-:::message alert
-**NAT 1.6.0 + Llama 3.1 8B NIM の制限**: このモデルの NIM プロファイルは **1 ターンにつき 1 tool までしか呼べません**。`current_datetime` と `wikipedia_search` の両方を同時に呼ぶ質問だと、`"This model only supports single tool-calls at once!"` という 500 エラーが返ります。本書は `wikipedia_search` 1 ツールに絞って回避していますが、ReAct と異なり本格的な複数ツール構成を試したい場合は Nemotron-Super-49B など複数 tool_calls 対応モデルに切り替えてください。
+:::message
+**NAT 1.6.0 と NIM モデルの相性**: `tool_calling_agent` は内部で LLM に並列 tool_calls を許可する挙動があり、モデル側が対応していないと `"This model only supports single tool-calls at once!"` のような 500 エラーになります。Meta Llama 3.1 8B では確認済み、本書のデフォルトの Nemotron Super 49B では複数 tool_calls を受け入れるものの、ReAct / ReWOO と違い「tool 呼び出しは 1 回に抑える」チューニング前提で動きます。本書は安全側で `wikipedia_search` 単独構成にしていますが、複数ツールを同時呼び出しさせたい場合は NIM モデルごとに動作確認する必要があります。
 :::
 
 ## 3 パターンの比較まとめ
 
-実際に動かした結果をざっくり表にまとめます。レイテンシは Llama 3.1 8B + クラウド NIM での実測値で、ネットワーク状況により前後します。
+実際に動かした結果をざっくり表にまとめます。レイテンシは Nemotron Super 49B + クラウド NIM での実測値で、ネットワーク状況により前後します。
 
 | パターン     | 本書の構成 | LLM 呼び出し数 | 体感レイテンシ | 向いている場面                               |
 | ------------ | ---------- | -------------- | -------------- | -------------------------------------------- |

@@ -46,7 +46,7 @@ general:
 llms:
   nim_llm:
     _type: nim
-    model_name: meta/llama-3.1-8b-instruct
+    model_name: nvidia/llama-3.3-nemotron-super-49b-v1
     api_key: ${NGC_API_KEY}
     temperature: 0.0
     max_tokens: 512
@@ -202,7 +202,7 @@ docker compose run --rm nat \
   --input "What is 12 plus 34?"
 ```
 
-算数だけなので ReAct はツールを呼ばず、Thought の中で答えを出すケースが多いです。モデルが Llama 3.1 8B だとたまに `wiki_search` を呼ぼうとして空振りすることもあります。そういうブレも ReAct の個性として観察してみてください。
+算数だけなので ReAct はツールを呼ばず、Thought の中で答えを出すケースが多いです。モデルが Nemotron Super 49B だとたまに `wiki_search` を呼ぼうとして空振りすることもあります。そういうブレも ReAct の個性として観察してみてください。
 
 **ループが長くなる質問**
 

@@ -36,7 +36,7 @@ general:
 llms:
   nim_llm:
     _type: nim
-    model_name: meta/llama-3.1-8b-instruct
+    model_name: nvidia/llama-3.3-nemotron-super-49b-v1
     api_key: ${NGC_API_KEY}
     temperature: 0.0
     max_tokens: 512
@@ -109,7 +109,7 @@ Builder（NAT の内部コンポーネント）が YAML を読んで、各セク
 llms:
   workflow_llm:
     _type: nim
-    model_name: meta/llama-3.1-8b-instruct
+    model_name: nvidia/llama-3.3-nemotron-super-49b-v1
     api_key: ${NGC_API_KEY}
 
   judge_llm:
@@ -214,7 +214,7 @@ docker compose run --rm nat \
  llms:
    nim_llm:
      _type: nim
-     model_name: meta/llama-3.1-8b-instruct
+     model_name: nvidia/llama-3.3-nemotron-super-49b-v1
      api_key: ${NGC_API_KEY}
 -    temperature: 0.0
 +    temperature: 0.9
@@ -229,14 +229,14 @@ Final Answer の文面が走らせるたびに揺れるようになります。0
  llms:
    nim_llm:
      _type: nim
--    model_name: meta/llama-3.1-8b-instruct
-+    model_name: nvidia/llama-3.3-nemotron-super-49b-v1
+-    model_name: nvidia/llama-3.3-nemotron-super-49b-v1
++    model_name: nvidia/nemotron-mini-4b-instruct
      api_key: ${NGC_API_KEY}
      temperature: 0.0
      max_tokens: 512
 ```
 
-Nemotron Super 49B は Llama 3.1 8B より 6 倍以上のパラメータ数を持つ高性能モデルです。ReAct の応答がよりきれいにフォーマットされる一方、レスポンスは体感 3-5 秒は遅くなります。評価が目的ではないとき、無駄にクレジットを消費しないよう早めに 8B に戻しておくのがおすすめです。
+Nemotron Mini 4B は Super 49B より 10 倍ほど小さい軽量モデルです。応答は速くなる（2-3 秒）反面、ReAct のフォーマット遵守が弱く `Missing 'Action Input:'` のような parse 失敗が増えるケースがあります。NIM のクレジットを抑えたい気持ちと「ReAct が安定して回る確実さ」のトレードオフを感じるいい実験です。検証が終わったら Super 49B に戻しておきましょう。
 
 **実験 3: verbose を落とす**
 

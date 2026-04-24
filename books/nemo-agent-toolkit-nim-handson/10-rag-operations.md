@@ -191,7 +191,7 @@ version from PyPI with `uv sync`. ...
 | `search_getstarted` | 3     | ~600-900 tokens      | 速い（7-10 秒）  | 入門系・カテゴリが明確な質問       |
 | `search_wide`       | 8     | ~1,800-2,500 tokens  | 遅い（12-18 秒） | 調査系・複数情報源を組合せたいとき |
 
-`top_k=8` まで増やすと、ReAct の Observation に 8 個のチャンクが並び、LLM が読む入力が長くなります。max_tokens の枠を圧迫しない範囲で、かつ関連性の低いチャンクで LLM を惑わさない範囲での絶妙な値を探すことになります。本書のモデル（Llama 3.1 8B、max_tokens 512）なら **基本は 3、調査用に 8**、という構え方が無難です。
+`top_k=8` まで増やすと、ReAct の Observation に 8 個のチャンクが並び、LLM が読む入力が長くなります。max_tokens の枠を圧迫しない範囲で、かつ関連性の低いチャンクで LLM を惑わさない範囲での絶妙な値を探すことになります。本書のモデル（Nemotron Super 49B、max_tokens 512）なら **基本は 3、調査用に 8**、という構え方が無難です。
 
 ## ドキュメントを差し替えて再 ingest する
 
