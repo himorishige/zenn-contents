@@ -104,25 +104,42 @@ docker compose run --rm nat
 
 ```text
 [AGENT]
-Thought: I need to know the current date. I will use the current_datetime tool to get it.
+Agent input: What is today's date?
+Agent's thoughts:
+Thought: I can find the current date and time using the current_datetime tool.
 Action: current_datetime
-Action Input: {}
-
-[TOOL]
-Observation: The current time of day is 2026-04-24 09:45:02 +0000
+Action Input: None
+Observation
 
 [AGENT]
-Thought: I now know the current date.
-Final Answer: Today's date is 2026-04-24.
+Calling tools: current_datetime
+Tool's input: None
+Tool's response:
+The current time of day is 2026-04-24 05:13:21 +0000
+
+[AGENT]
+Agent input: What is today's date?
+Agent's thoughts:
+Thought: I now know the current date and time.
+Final Answer: 2026-04-24
+
+--------------------------------------------------
+Workflow Result:
+2026-04-24
+--------------------------------------------------
 ```
 
 出力のポイントは 3 つあります。
 
-- `Thought:` で LLM が「次に何をすべきか」を言語化している
-- `Action: current_datetime` と `Action Input: {}` で、LLM がツールを呼び出すよう指示している
-- ツール実行結果が `Observation:` として返り、再度 LLM が受け取って `Final Answer:` を出す
+- `Agent's thoughts:` のブロックで、LLM が「次に何をすべきか」を `Thought:` として言語化している
+- `Action: current_datetime` と `Action Input: None` で、LLM がツールを呼び出すよう指示している
+- ツール実行結果が `Tool's response:` として返り、続く `Agent's thoughts:` で LLM が読み、最後に `Final Answer:` と `Workflow Result:` が出る
 
 これが ReAct（Reasoning + Acting）ループの基本形です。本書で後から出てくる Router や agent-as-tool、A2A もすべて、この思考→行動→観測の積み重ねの上に乗っています。
+
+:::message
+NAT 1.6.0 の ReAct 出力は、厳密には LangChain/LangGraph の Thought / Action / Observation の慣習を踏襲しています。見出しは `[AGENT]` `[TOOL]` ではなく `[AGENT]`（tool 呼び出し時も `[AGENT]` 見出しで `Calling tools:` が続く）形式です。他の記事で見かける綺麗な Thought / Observation の対と少し見た目が違いますが、構造は同じです。
+:::
 
 ## 裏で起きていること
 

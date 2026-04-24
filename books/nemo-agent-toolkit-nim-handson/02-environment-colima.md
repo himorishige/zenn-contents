@@ -233,13 +233,27 @@ docker run --rm nat-nim-handson:1.6.0 --help
 次のような出力が返れば成功です。
 
 ```text
-usage: nat [-h] {run,serve,mcp,eval,info,workflow,validate,optimizer} ...
+Usage: nat [OPTIONS] COMMAND [ARGS]...
 
-NVIDIA NeMo Agent Toolkit CLI
-...
+  Main entrypoint for the NAT CLI
+
+Commands:
+  configure     Configure NAT developer preferences.
+  eval          Evaluate a workflow with the specified dataset.
+  finetune      Run finetuning on a workflow using collected trajectories.
+  info          Provide information about the local NAT environment.
+  mcp           MCP-related commands.
+  object-store  Manage object store operations.
+  registry      Utility to configure NAT remote registry channels.
+  run           Run a NAT workflow using the console front end.
+  serve         Run a NAT workflow using the fastapi front end.
+  start         Run a NAT workflow using a front end configuration.
+  uninstall     Uninstall plugin packages from the local environment.
+  validate      Validate a configuration file
+  workflow      Interact with templated workflows.
 ```
 
-`run`、`serve`、`mcp`、`eval`、`optimizer` といったサブコマンドが並んでいれば、NAT はきちんとインストールされています。
+本書で使うのは主に `run`（第 3 章以降）、`validate` と `info`（第 4 章）、`mcp`（第 8 章）、`eval`（第 13 章）、`serve`（第 14 章）の 5 種です。サブコマンドが並んでいれば、NAT はきちんとインストールされています。
 
 :::message
 初回起動時に「Unable to find image 'nat-nim-handson:1.6.0' locally」と出た場合、イメージ名のタイポか、直前の `docker build` でタグが違った可能性があります。`docker images | grep nat-nim-handson` で実際のタグを確認してください。

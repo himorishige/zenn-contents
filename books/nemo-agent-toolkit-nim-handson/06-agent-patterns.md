@@ -100,49 +100,88 @@ workflow:
 docker compose run --rm nat-react
 ```
 
-出力はおなじみの Thought / Action / Observation の繰り返しです。2 ツールを呼ぶ質問だと、LLM 呼び出しが合計 3 回（Thought 1、Thought 2、Final で 1 ずつ）発生し、Wikipedia と current_datetime の Observation を挟むため、体感レイテンシは 7-10 秒になります。
+出力は Thought / Action / Observation の繰り返しです。2 ツールを順番に呼ぶ軌跡が見えます。
+
+```text
+[AGENT]
+Agent input: Who is the current CEO of NVIDIA, and what date is it today?
+Agent's thoughts:
+Thought: I need to know the current date and time to answer the question about the CEO of NVIDIA.
+Action: current_datetime
+Action Input: None
+Observation
+
+[AGENT]
+Calling tools: current_datetime
+Tool's input: None
+Tool's response:
+The current time of day is 2026-04-24 05:13:34 +0000
+
+[AGENT]
+Agent's thoughts:
+Thought: I now have the current date and time, but I still need to find the current CEO of NVIDIA.
+Action: wikipedia_search
+Action Input: {"question": "Current CEO of NVIDIA"}
+
+[AGENT]
+Calling tools: wikipedia_search
+Tool's response: <Document source="..."/>...Jensen Huang...
+
+[AGENT]
+Final Answer: The current CEO of NVIDIA is Jensen Huang, and the current date is April 24, 2026.
+```
+
+LLM 呼び出しは「最初の Thought」「Observation 後の Thought」「Final Answer」の 3 回前後、ツールは 2 回呼ばれ、体感レイテンシは 8-12 秒くらいです。本書の実測では総 7-14 秒のバラツキがありました。
 
 ## パターン 2: ReWOO
 
-次に ReWOO。差分は `_type` だけです。
+次に ReWOO。`_type` の差し替えに加えて、**ツール構成も絞ります**。NAT 1.6.0 時点の ReWOO は `current_datetime` のような引数なしツールと相性が悪く、Pydantic のスキーマ検証で落ちるケースがあるためです（後述のハマりどころを参照）。
 
-```diff yaml:workflow-rewoo.yml
- workflow:
--  _type: react_agent
-+  _type: rewoo_agent
-   tool_names:
-     - current_datetime
-     - wikipedia_search
-   llm_name: nim_llm
-   verbose: true
--  max_iterations: 6
+```yaml:workflow-rewoo.yml
+functions:
+  wikipedia_search:
+    _type: wiki_search
+    max_results: 2
+
+workflow:
+  _type: rewoo_agent
+  tool_names:
+    - wikipedia_search
+  llm_name: nim_llm
+  verbose: true
 ```
 
-ReWOO には `max_iterations` は不要です（ループせず固定 3 段階で終わるため）。実行。
+`max_iterations` は ReWOO では不要です（ループせず 3 段階で終わるため）。実行。
 
 ```bash
 docker compose run --rm nat-rewoo
 ```
 
-出力は大きく変わります。Thought / Action / Observation の繰り返しではなく、いきなり「Plan」と「Evidence」が並ぶ形式です。
+ReWOO は「Plan を立てる → 各 Plan のツールを順に呼ぶ → Solver が答えを組み立てる」の 3 段構えです。出力にはまず JSON 形式の Plan が出てきます。
 
 ```text
 [AGENT]
-Plan 1: Use wikipedia_search to find who is the current CEO of NVIDIA.
-#E1 = wikipedia_search["NVIDIA CEO"]
+Plan 1: Find out who founded NVIDIA.
+#E1 = wikipedia_search[{"question": "Who founded NVIDIA?"}]
 
-Plan 2: Use current_datetime to find today's date.
-#E2 = current_datetime[]
-
-[TOOL]
-Evidence 1: Jensen Huang — Co-founder, president and CEO of NVIDIA...
-Evidence 2: The current time of day is 2026-04-24 10:15:02 +0000
+Execution levels: [['#E1']]
 
 [AGENT]
-Final Answer: NVIDIA's current CEO is Jensen Huang, and today's date is 2026-04-24.
+Calling tools: wikipedia_search
+Tool's response:
+<Document source="https://en.wikipedia.org/wiki/Nvidia"/>
+Nvidia Corporation ... Founded in 1993 by Jensen Huang, Chris Malachowsky, and Curtis Priem ...
+
+[AGENT]
+Agent input: Who founded NVIDIA?
+Agent's thoughts:
+Jensen Huang, Chris Malachowsky, and Curtis Priem.
+
+Workflow Result:
+Jensen Huang, Chris Malachowsky, and Curtis Priem.
 ```
 
-LLM 呼び出しはプラン生成と最終解答の 2 回だけで済み、ツール呼び出しは並列ではないものの逐次的に先行実行されます。体感レイテンシは 5-7 秒、**ReAct より 2-3 秒速い**のが一般的です。
+LLM 呼び出しは Plan 生成と Solver の 2 回で済み、体感レイテンシは 5-7 秒。ReAct より 2-4 秒速いのが実測の傾向です。
 
 ReWOO の強みは、tool 呼び出しの「道筋」が最初に決まる点です。Observation を見てから軌道修正する必要がない簡単な質問では、ReWOO の方が速くて安上がりです。一方、Observation の内容次第で次の行動を変えたいケース（質問が込み入っている、tool の失敗に備えたい）は ReAct 向きです。
 
@@ -150,20 +189,26 @@ ReWOO の強みは、tool 呼び出しの「道筋」が最初に決まる点で
 ReWOO の名前は "Reasoning WithOut Observation" の略で、Plan 段階では Observation を見ないのが特徴です。論文は [arXiv 2305.18323](https://arxiv.org/abs/2305.18323) で 2023 年 5 月に公開されました。
 :::
 
+:::message alert
+**NAT 1.6.0 時点の ReWOO の制限**: 実測で 2 つの問題に遭遇しました。(1) `current_datetime` を tool_names に含めると、ReWOO が空引数 `{}` で呼び出すため Pydantic のスキーマ検証で落ちます。`wikipedia_search` など引数ありのツールに絞るのが安全です。(2) 複雑な質問で Plan が複数レベルの依存を持つと、レベル間の入力型変換で `Unexpected type for tool_input: <class 'list'>` エラーになる場合があります。本書ではシンプルな 1 Plan の質問に絞っています。
+:::
+
 ## パターン 3: Tool Calling
 
-3 つ目は Tool Calling。これも `_type` 1 行の差分です。
+3 つ目は Tool Calling。こちらも `wikipedia_search` 1 ツール構成にしてあります。
 
-```diff yaml:workflow-tool-calling.yml
- workflow:
--  _type: react_agent
-+  _type: tool_calling_agent
-   tool_names:
-     - current_datetime
-     - wikipedia_search
-   llm_name: nim_llm
-   verbose: true
--  max_iterations: 6
+```yaml:workflow-tool-calling.yml
+functions:
+  wikipedia_search:
+    _type: wiki_search
+    max_results: 2
+
+workflow:
+  _type: tool_calling_agent
+  tool_names:
+    - wikipedia_search
+  llm_name: nim_llm
+  verbose: true
 ```
 
 実行。
@@ -172,40 +217,45 @@ ReWOO の名前は "Reasoning WithOut Observation" の略で、Plan 段階では
 docker compose run --rm nat-tool-calling
 ```
 
-出力からは Thought 行が消え、LLM の出力が `tool_calls` という JSON フィールドで扱われているのが見えます。
+Tool Calling の出力には LangChain 内部の `content='...'` や `tool_calls=[...]` といったオブジェクト表現が verbose で流れます。読みどころは `tool_calls` のフィールドです。
 
 ```text
 [AGENT]
-Tool calls:
-  - wikipedia_search({"query": "NVIDIA CEO"})
-
-[TOOL]
-Observation: 1. Jensen Huang — Co-founder, president and CEO of NVIDIA...
-
-[AGENT]
-Tool calls:
-  - current_datetime({})
-
-[TOOL]
-Observation: The current time of day is 2026-04-24 10:17:40 +0000
+Agent input: Who founded NVIDIA?
+Agent's thoughts:
+content=';' additional_kwargs={'tool_calls': [
+  {'type': 'function',
+   'function': {'name': 'wikipedia_search',
+                'arguments': '{"question": "Who founded NVIDIA?"}'}}]}
+tool_calls=[{'name': 'wikipedia_search',
+             'args': {'question': 'Who founded NVIDIA?'}}]
 
 [AGENT]
-Final Answer: NVIDIA's current CEO is Jensen Huang, and today's date is 2026-04-24.
+Calling tools: wikipedia_search
+Tool's response: <Document source="..."/>...Jensen Huang, Chris Malachowsky, and Curtis Priem...
+
+[AGENT]
+Agent's thoughts:
+content='The founder of NVIDIA is Jensen Huang, Chris Malachowsky, and Curtis Priem. They founded the company in 1993.'
 ```
 
 Tool Calling の強みは「LLM 出力の構造が固い」ことです。tool 呼び出しは JSON schema に従うため、パース失敗が起こりにくく、CI 組み込みや本番運用で扱いやすい特性があります。
 
-一方で弱点もあります。`tool_calls` を扱える LLM に依存するため、NIM のどのモデルでも動くわけではありません。本書で使う Llama 3.1 8B は Tool Calling に正式対応していますが、同じ NIM でも Nemotron Nano 系では `react_agent` の方が安定することがあります。モデルと workflow パターンの相性は、実際に `nat validate` + 小さな入力で事前検証するのが安全です。
+:::message alert
+**NAT 1.6.0 + Llama 3.1 8B NIM の制限**: このモデルの NIM プロファイルは **1 ターンにつき 1 tool までしか呼べません**。`current_datetime` と `wikipedia_search` の両方を同時に呼ぶ質問だと、`"This model only supports single tool-calls at once!"` という 500 エラーが返ります。本書は `wikipedia_search` 1 ツールに絞って回避していますが、ReAct と異なり本格的な複数ツール構成を試したい場合は Nemotron-Super-49B など複数 tool_calls 対応モデルに切り替えてください。
+:::
 
 ## 3 パターンの比較まとめ
 
-実際に動かした結果をざっくり表にまとめます。レイテンシは Llama 3.1 8B + クラウド NIM での体感値で、ネットワーク状況により前後します。
+実際に動かした結果をざっくり表にまとめます。レイテンシは Llama 3.1 8B + クラウド NIM での実測値で、ネットワーク状況により前後します。
 
-| パターン     | LLM 呼び出し数 | tool 呼び出し数 | 体感レイテンシ | 向いている場面                               |
-| ------------ | -------------- | --------------- | -------------- | -------------------------------------------- |
-| ReAct        | 3 回以上       | 2 回（逐次）    | 7-10 秒        | 質問が複雑で軌道修正が要る、教育・デバッグ   |
-| ReWOO        | 2 回（固定）   | 2 回（逐次）    | 5-7 秒         | プランが事前に立てられる簡単な質問、本番運用 |
-| Tool Calling | 3 回以上       | 2 回（逐次）    | 6-9 秒         | tool 呼び出しの構造を厳密に保ちたい場面      |
+| パターン     | 本書の構成 | LLM 呼び出し数 | 体感レイテンシ | 向いている場面                               |
+| ------------ | ---------- | -------------- | -------------- | -------------------------------------------- |
+| ReAct        | 2 ツール   | 3 回以上       | 8-12 秒        | 質問が複雑で軌道修正が要る、教育・デバッグ   |
+| ReWOO        | wiki 単独  | 2 回（固定）   | 5-7 秒         | プランが事前に立てられる簡単な質問、本番運用 |
+| Tool Calling | wiki 単独  | 2 回           | 5-8 秒         | tool 呼び出しの構造を厳密に保ちたい場面      |
+
+本書では 3 パターンを同じ条件で並べる意図で、ReWOO と Tool Calling もあえて **ReAct と同一ツール構成にすると NAT 1.6.0 で動かない**という制約にぶつかりました。この実測事実そのものが NAT のバージョンを吟味する判断材料になるので、隠さずそのまま残しています。本書のバージョン更新時には、この表と注意書きをあらためて見直す予定です。
 
 :::details Router パターンはどこに？
 

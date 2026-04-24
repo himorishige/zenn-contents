@@ -184,7 +184,16 @@ docker compose run --rm nat \
   info components -t function
 ```
 
-`function` の他に `llm` / `embedder` / `retriever` / `evaluator` も指定できます。自分の NAT バージョンで使える `_type` がそのまま一覧表示されるので、「それ実装されてる？」の確認に役立ちます。
+`function` の他に `llm_client` / `llm_provider` / `embedder_client` / `retriever_client` / `evaluator` なども指定できます（`nat info components --help` で全種類を確認できます）。自分の NAT バージョンで使える `_type` がそのまま表形式で一覧表示されるので、「それ実装されてる？」の確認に役立ちます。
+
+特定のコンポーネントだけ調べたい場合は `-q` で絞り込みます。
+
+```bash
+docker compose run --rm nat \
+  info components -t function -q wiki_search
+```
+
+パッケージ名・バージョン・component_type・component_name・description が並ぶ表が返ります。
 
 **YAML が壊れていないか確認する**
 
