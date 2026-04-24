@@ -209,4 +209,4 @@ NAT を「Chat Completions を喋る LLM サービス」としてフロントエ
 
 ## 次章では
 
-次章は本書の最終章、題材アプリの総仕上げです。第 9-10 章の RAG、第 11 章の Router、第 12 章の A2A、第 13 章の評価、本章の FastAPI 公開を**1 つの docker compose に集約**して、「NVIDIA NAT docs & DGX Spark Q&A エージェント」の完成形を組み立てます。
+次章は本書の最終章、題材アプリの総仕上げです。第 9-10 章の RAG、第 12 章の A2A、第 13 章の評価、本章の FastAPI 公開を**1 つの docker compose に集約**して、「NAT docs & 一般知識ハイブリッド Q&A エージェント」の完成形を組み立てます（第 11 章の Router の制約も踏まえて、現実的に動く構成で統合します）。

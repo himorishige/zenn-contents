@@ -75,6 +75,14 @@ NAT 1.6.0 の `streamable-http` クライアントが長時間応答のツール
 
 サーバー側の `host` が `localhost` だと他コンテナから叩けません。`0.0.0.0` に直して再起動します（第 12 章）。
 
+### `a2a_client` 呼び出しで `Cannot convert type <str> to <InputArgsSchema>`
+
+NAT 1.6.0 の A2A client が Agent Card から展開したスキルを ReAct から呼ぶときに発生する既知エラー。ReAct 内部で retry が走りますが、引用付きの RAG 応答は返らないケースがあります。本書では第 15 章の「よくある詰まりどころ」で注意喚起しています。安定動作させたいときは第 12 章のように A2A server を単独で curl 叩きし、RAG を直接呼ぶ構成へ分解してください。
+
+### `router_agent` の `branches:` に `function_groups:` の名前を入れると `Function 'xxx' not found`
+
+NAT 1.6.0 の `router_agent` は `functions:` 配下の function 名しか branches に取りません。function_group を展開する workflow が必要なときは `per_user_react_agent` の `tool_names:` を採用します（第 15 章）。
+
 ## Router Agent（第 11 章）
 
 ### `ChatRequestOrMessage` のスキーマ不一致エラー
@@ -82,7 +90,7 @@ NAT 1.6.0 の `streamable-http` クライアントが長時間応答のツール
 `router_agent` の `branches:` に `react_agent` / `rewoo_agent` / `tool_calling_agent` を直接入れると発生します。回避策は 2 つ：
 
 - tool / retriever レベルに branches を限定する（第 11 章）
-- A2A 経由で別プロセスに切り出して function_group として呼ぶ（第 12 章、第 15 章）
+- `per_user_react_agent` の `tool_names:` に function_group を入れる（第 12 章、第 15 章）
 
 ## RAG / Milvus（第 9・10 章）
 

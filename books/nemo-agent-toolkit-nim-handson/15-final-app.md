@@ -2,16 +2,17 @@
 title: "第 15 章 題材アプリ総仕上げ"
 ---
 
-本書の最終章です。ここまでに組み上げてきた NAT の要素を 1 つの docker compose に統合し、**「NVIDIA NAT docs & 一般知識ハイブリッド Q&A エージェント」**を完成させます。読者は `/v1/chat` を curl で叩くだけで、内部では Router → A2A → RAG ReAct → Milvus までが連鎖し、同時に Phoenix にトレースが流れます。
+本書の最終章です。ここまでに組み上げてきた NAT の要素を 1 つの docker compose に統合し、**「NVIDIA NAT docs & 一般知識ハイブリッド Q&A エージェント」**を完成させます。読者は `/v1/chat` を curl で叩くだけで、内部では ReAct → tool 選択 → A2A → RAG → Milvus までが連鎖し、同時に Phoenix にトレースが流れます。
 
 本書で登場した道具の集大成、という位置付けです。
 
 ## この章のゴール
 
-- 第 7 章（Phoenix）+ 第 9-10 章（Milvus RAG）+ 第 11 章（Router）+ 第 12 章（A2A）+ 第 14 章（FastAPI）の 5 要素を 1 つの compose に統合する
-- Router の branches に A2A 経由のサブエージェントが乗る構成を実装する（第 11 章の制約を A2A で回避）
+- 第 7 章（Phoenix）+ 第 9-10 章（Milvus RAG）+ 第 12 章（A2A）+ 第 14 章（FastAPI）の 4 要素を 1 つの compose に統合する
+- `per_user_react_agent` の tool_names に A2A client の function_group を乗せる構成を実装する
 - `/v1/chat` を curl で叩いて「質問内容に応じて NAT docs / Wikipedia / datetime が自動で選ばれる」を体感する
 - Phoenix 側でエージェント連鎖のトレースを目視する
+- 第 11 章の Router の制約（`branches:` は function 名のみ）を踏まえた現実的な統合構成を理解する
 
 ## 前章からの引き継ぎ
 
@@ -29,11 +30,11 @@ graph TB
 
     subgraph Front["agent-main (FastAPI, port 8000)"]
         API["/v1/chat"]
-        R["Router Agent"]
+        R["per_user_react_agent"]
         API --> R
     end
 
-    subgraph Branches["branches"]
+    subgraph Branches["tools"]
         direction LR
         B1["nat_docs_a2a<br/>(A2A client)"]
         B2["wiki_lookup"]
@@ -72,19 +73,21 @@ graph TB
 
 compose の service は 8 つ。それぞれの役割は以下です。
 
-| service          | 役割                                            | 対応章           |
-| ---------------- | ----------------------------------------------- | ---------------- |
-| `etcd`           | Milvus メタデータストア                         | 第 9 章          |
-| `minio`          | Milvus オブジェクトストレージ                   | 第 9 章          |
-| `milvus`         | ベクトル検索本体                                | 第 9 章          |
-| `ingest`         | NAT docs を Milvus に投入（初回のみ）           | 第 10 章         |
-| `phoenix`        | OTLP トレース収集・可視化                       | 第 7 章          |
-| `agent-nat-docs` | A2A サーバー、RAG ReAct                         | 第 9 + 第 12 章  |
-| `agent-main`     | FastAPI フロント、Router で 3 branch に振り分け | 第 11 + 第 14 章 |
+| service          | 役割                                                    | 対応章           |
+| ---------------- | ------------------------------------------------------- | ---------------- |
+| `etcd`           | Milvus メタデータストア                                 | 第 9 章          |
+| `minio`          | Milvus オブジェクトストレージ                           | 第 9 章          |
+| `milvus`         | ベクトル検索本体                                        | 第 9 章          |
+| `ingest`         | NAT docs を Milvus に投入（初回のみ）                   | 第 10 章         |
+| `phoenix`        | OTLP トレース収集・可視化                               | 第 7 章          |
+| `agent-nat-docs` | A2A サーバー、RAG ReAct                                 | 第 9 + 第 12 章  |
+| `agent-main`     | FastAPI フロント、per_user_react_agent が 3 tool を選択 | 第 12 + 第 14 章 |
 
-## 第 11 章の制約を A2A で回避する
+## 第 12 章の `per_user_react_agent` に A2A client を乗せる
 
-第 11 章で「Router の branches にサブ ReAct エージェントを直接入れると `ChatRequest` スキーマ不一致で落ちる」という制約にぶつかりました。本章はこれを **A2A 経由の function_group 化**で解決します。
+実機検証の結果、`router_agent` の `branches:` には **function 名しか受け付けず、`function_groups:` に宣言した A2A client を直接は展開できません**（NAT 1.6.0, `ValueError: Function 'nat_docs_a2a' not found in list of functions`）。一方、第 12 章で確認した `per_user_react_agent` は `tool_names:` に function_group を入れて動作することがわかっています。
+
+そこで本章では **第 12 章の `per_user_react_agent` をそのまま外枠に採用**します。Router は見た目のインパクトこそありますが、`tool_names:` に複数ツール（A2A 含む）を並べれば、ReAct の内部でも十分に「質問に応じた自動振り分け」が実現できます。
 
 ```yaml:main-agent.yml（核となる部分）
 function_groups:
@@ -102,17 +105,20 @@ functions:
     _type: current_datetime
 
 workflow:
-  _type: router_agent
+  _type: per_user_react_agent
   llm_name: nim_llm
-  branches:
+  tool_names:
     - nat_docs_a2a
     - wiki_lookup
     - current_datetime
+  verbose: true
+  max_iterations: 6
+  parse_agent_response_max_retries: 5
 ```
 
-違いは 1 点、`nat_docs_a2a` が **`functions:` ではなく `function_groups:`** に宣言されていることです。A2A client はスキル一覧を Agent Card から取得して複数 tool を一括展開するので、NAT ではこれを function_group として扱います。`branches:` に function_group 名をそのまま入れると、Router はその function_group 配下のツール群をひとまとめの「振り分け先」として扱えます。
+違いは 1 点、`nat_docs_a2a` が **`functions:` ではなく `function_groups:`** に宣言されていることです。A2A client はスキル一覧を Agent Card から取得して複数 tool を一括展開するので、NAT ではこれを function_group として扱います。`tool_names:` に function_group 名を入れると、ReAct 側はそのグループ配下のツール群を自分の ReAct 思考ループで呼べるようになります。
 
-`per_user_react_agent` を使った第 12 章とは異なり、本章は **Router が外枠**なので通常の `router_agent` で OK。A2A の型変換レイヤーが `/v1/chat` 相当のメッセージ形式を吸収してくれるため、Router → A2A client → Sub ReAct と 3 レイヤー深くなってもスキーマエラーは発生しません。
+`per_user_react_agent` は「ユーザー単位でセッション状態を分離する」前提の workflow なので、HTTP 呼び出し時に JWT の `sub` / `user_id` が必須になります。本章では動作確認用にダミー JWT で通しますが、本番では認証バックエンドと連携させる流れが一般的です。
 
 ## rag-agent.yml は第 9 章のほぼ再掲
 
@@ -158,68 +164,92 @@ curl -s http://localhost:10001/.well-known/agent-card.json | jq .name
 
 ## `/v1/chat` で完成アプリを叩く
 
-NAT 製品の質問：
+`per_user_react_agent` はユーザー分離のために JWT の `sub` 相当が必要です。本節ではダミー JWT を生成して動作確認します。
+
+```bash
+# ダミー JWT 生成（sub: test-user-1, alg: none）
+JWT=$(python3 -c "
+import base64, json
+header = base64.urlsafe_b64encode(json.dumps({'alg':'none','typ':'JWT'}).encode()).decode().rstrip('=')
+payload = base64.urlsafe_b64encode(json.dumps({'sub':'test-user-1','user_id':'test-user-1'}).encode()).decode().rstrip('=')
+print(f'{header}.{payload}.')
+")
+```
+
+時刻の質問（もっともシンプルなケース）：
 
 ```bash
 curl -s -X POST http://localhost:8000/v1/chat \
   -H "Content-Type: application/json" \
-  -d '{"messages":[{"role":"user","content":"How do I configure a Milvus retriever in NAT?"}]}' | jq '.choices[0].message.content'
+  -H "Authorization: Bearer $JWT" \
+  -d '{"messages":[{"role":"user","content":"What is the current time?"}]}' | jq '.choices[0].message.content'
 ```
 
-Router は `nat_docs_a2a` に振り分け、A2A 経由で agent-nat-docs が呼ばれ、Milvus から `retrievers.md` / `workflow-configuration.md` のチャンクを取得して ReAct で組み立てた応答が `/v1/chat` 形式で返ります。
+ReAct が `current_datetime` を選び、UTC タイムスタンプが返ります。
 
 一般知識の質問：
 
 ```bash
 curl -s -X POST http://localhost:8000/v1/chat \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $JWT" \
   -d '{"messages":[{"role":"user","content":"Who founded NVIDIA?"}]}' | jq '.choices[0].message.content'
 ```
 
-Router は `wiki_lookup` に振り分け、Wikipedia 検索結果をそのまま返します。
+ReAct が `wiki_lookup` を選び、Wikipedia 検索結果から組み立てた応答が返ります。
 
-時刻の質問：
+NAT 製品の質問（A2A 経由）：
 
 ```bash
 curl -s -X POST http://localhost:8000/v1/chat \
   -H "Content-Type: application/json" \
-  -d '{"messages":[{"role":"user","content":"What is the current time?"}]}' | jq '.choices[0].message.content'
+  -H "Authorization: Bearer $JWT" \
+  --max-time 180 \
+  -d '{"messages":[{"role":"user","content":"How do I configure a Milvus retriever in NeMo Agent Toolkit?"}]}' | jq '.choices[0].message.content'
 ```
 
-Router は `current_datetime` に振り分けます。ここはほぼ即答。
+ReAct が `nat_docs_a2a` 配下のスキルを選び、A2A 経由で agent-nat-docs が呼ばれる想定です。ただし **NAT 1.6.0 では A2A client の引数スキーマ変換で型エラー（`Cannot convert type <str> to <InputArgsSchema>`）**が発生することがあります。その場合は ReAct の retry でリカバリしつつも、期待通りのドキュメント引用までは返せないケースがあります。A2A 経由で安定動作させたいときは第 12 章のように A2A server を単独で叩き、RAG は直接呼ぶ構成に分解するのが安全です。
 
 ## Phoenix でトレースを追う
 
-`http://localhost:6006/` を開いて `nat-handson-ch15` プロジェクトを選ぶと、Router → branch 選択 → A2A 呼び出し → RAG → Final Answer までの span がツリーで見えます。
+`http://localhost:6006/` を開いて `nat-handson-ch15` プロジェクトを選ぶと、ReAct → tool 選択 → A2A 呼び出し → RAG → Final Answer までの span がツリーで見えます。
 
-3 つの質問タイプそれぞれで、どの branch が選ばれたか、どれだけ時間がかかったか、Observation に何が返ったかが一目で分かります。エージェントの品質チューニングでは、ここのトレースを眺めるのが最短経路です。
+3 つの質問タイプそれぞれで、どの tool が選ばれたか、どれだけ時間がかかったか、Observation に何が返ったかが一目で分かります。エージェントの品質チューニングでは、ここのトレースを眺めるのが最短経路です。
 
 ## 本書で積み上げた要素の棚卸し
 
 完成アプリの中で、本書の各章が果たした役割を並べておきます。
 
-| 章       | このアプリで効いている機能                                            |
-| -------- | --------------------------------------------------------------------- |
-| 第 3 章  | `docker compose run --rm nat` の実行形態（基盤）                      |
-| 第 4 章  | YAML の 4 セクション（general / llms / functions / workflow）の書き方 |
-| 第 5 章  | `current_datetime` / `wikipedia_search` の組み込み tool               |
-| 第 6 章  | `react_agent` / `router_agent` の `_type` 差し替え                    |
-| 第 7 章  | `general.telemetry.tracing.phoenix` で Phoenix に送信                 |
-| 第 8 章  | MCP は今回の完成アプリでは不使用（将来の拡張枠）                      |
-| 第 9 章  | `embedders` / `retrievers` / `milvus_retriever` / `nat_retriever`     |
-| 第 10 章 | `search_params.filter` / `top_k` のチューニング知識                   |
-| 第 11 章 | `workflow._type: router_agent` + `branches:`                          |
-| 第 12 章 | `function_groups._type: a2a_client` + `general.front_end._type: a2a`  |
-| 第 13 章 | `nat eval` による定量評価（改善サイクルの回し方）                     |
-| 第 14 章 | `nat serve` + FastAPI / `/v1/chat` OpenAI 互換                        |
+| 章       | このアプリで効いている機能                                                                    |
+| -------- | --------------------------------------------------------------------------------------------- |
+| 第 3 章  | `docker compose run --rm nat` の実行形態（基盤）                                              |
+| 第 4 章  | YAML の 4 セクション（general / llms / functions / workflow）の書き方                         |
+| 第 5 章  | `current_datetime` / `wikipedia_search` の組み込み tool                                       |
+| 第 6 章  | `react_agent` / `router_agent` の `_type` 差し替え                                            |
+| 第 7 章  | `general.telemetry.tracing.phoenix` で Phoenix に送信                                         |
+| 第 8 章  | MCP は今回の完成アプリでは不使用（将来の拡張枠）                                              |
+| 第 9 章  | `embedders` / `retrievers` / `milvus_retriever` / `nat_retriever`                             |
+| 第 10 章 | `search_params.filter` / `top_k` のチューニング知識                                           |
+| 第 11 章 | `workflow._type: router_agent` + `branches:`（本章では不採用、制約知見を転用）                |
+| 第 12 章 | `function_groups._type: a2a_client` + `general.front_end._type: a2a` + `per_user_react_agent` |
+| 第 13 章 | `nat eval` による定量評価（改善サイクルの回し方）                                             |
+| 第 14 章 | `nat serve` + FastAPI / `/v1/chat` OpenAI 互換                                                |
 
 本章はそれぞれ 1 行や 1 セクションずつ「混ぜる」だけでした。**NAT の設計思想である「YAML で宣言的に組み立てる」**という考え方が、完成アプリの規模になっても破綻していないのがポイントです。
 
 ## よくある詰まりどころ
 
-**`/v1/chat` に POST して 404**
+**`/v1/chat` に POST して `user_id is required` で 500**
 
-`workflow.yml` の `_type: router_agent` で `branches:` に空リストを渡すと、NAT は `/v1/chat` を expose しません。最低 1 つ function または function_group を指定してください。
+`per_user_react_agent` を使うときの必須仕様です。`Authorization: Bearer <JWT>` を付与し、JWT の `sub` または `user_id` claim を含めてください。本章の動作確認スニペットではダミー JWT（`alg: none`）を生成しています。
+
+**`router_agent` の `branches:` に `nat_docs_a2a` を入れたら `Function not found`**
+
+NAT 1.6.0 の `router_agent` は `function_groups:` を展開できません。function 名（`functions:` 配下）しか受け付けないため、A2A client を組み合わせる用途では `per_user_react_agent` を採用してください。
+
+**`nat_docs_a2a` 呼び出しで `Cannot convert type <str> to <InputArgsSchema>`**
+
+NAT 1.6.0 の A2A client で発生する既知の型変換エラーです。ReAct の内部 retry で最終応答は返りますが、引用付きの RAG 応答までは期待しにくいケースです。A2A を安定動作させたいときは、第 12 章のように A2A server を単独で叩く構成に分解するのが確実です。
 
 **`a2a_client` が Agent Card 404**
 
@@ -236,8 +266,8 @@ Router は `current_datetime` に振り分けます。ここはほぼ即答。
 ## ここまでで動くもの
 
 - docker compose up 一発で、8 service の完成アプリが立ち上がる
-- `/v1/chat` に POST するだけで、Router が 3 種類の branch を自動で振り分け
-- A2A 経由でサブ ReAct が呼ばれ、Milvus RAG の応答が帰ってくる
+- `/v1/chat` に JWT 付き POST するだけで、ReAct が wiki_lookup / current_datetime を自動選択
+- A2A client が agent-nat-docs の Agent Card からスキルを展開（RAG 応答は NAT 1.6.0 の制約あり）
 - Phoenix でエージェント連鎖を span ツリーとして眺められる
 - 本書 14 章の要素がすべて 1 つの compose に集約された
 
