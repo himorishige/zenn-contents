@@ -13,3 +13,4 @@ chapters:
   - 05-builtin-tools
   - 06-agent-patterns
   - 07-phoenix-observability
+  - 08-mcp-integration
