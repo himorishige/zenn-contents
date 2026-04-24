@@ -19,3 +19,7 @@ chapters:
   - 11-multi-agent-router
   - 12-a2a-protocol
   - 13-nat-eval
+  - 14-nat-serve
+  - 15-final-app
+  - appendix-a-troubleshooting
+  - appendix-b-nim-free-tier
