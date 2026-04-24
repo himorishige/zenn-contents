@@ -11,3 +11,4 @@ chapters:
   - 03-hello-agent
   - 04-yaml-anatomy
   - 05-builtin-tools
+  - 06-agent-patterns
