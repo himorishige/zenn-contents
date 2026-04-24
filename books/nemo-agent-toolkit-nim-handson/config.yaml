@@ -17,3 +17,4 @@ chapters:
   - 09-rag-milvus
   - 10-rag-operations
   - 11-multi-agent-router
+  - 12-a2a-protocol
