@@ -9,3 +9,4 @@ chapters:
   - 01-what-is-nat
   - 02-environment-colima
   - 03-hello-agent
+  - 04-yaml-anatomy
