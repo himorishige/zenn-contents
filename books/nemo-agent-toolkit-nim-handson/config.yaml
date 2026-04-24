@@ -14,3 +14,4 @@ chapters:
   - 06-agent-patterns
   - 07-phoenix-observability
   - 08-mcp-integration
+  - 09-rag-milvus
