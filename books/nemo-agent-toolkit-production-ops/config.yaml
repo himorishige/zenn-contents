@@ -20,5 +20,6 @@ chapters:
   - 12-prompt-management-ab
   - 13-cost-and-datasets
   - 14-final-app
+  - 15-multi-agent
   - appendix-a-phoenix-migration
   - appendix-b-langfuse-cloud
