@@ -1,5 +1,5 @@
 ---
-title: "第 11 章 マルチエージェント①：Router で振り分ける"
+title: "第 11 章 マルチエージェント 1：Router で振り分ける"
 ---
 
 ここまでの章で、単体 ReAct エージェントが 2 ツール（`current_datetime` + `wikipedia_search`）や RAG（`search_nat_docs`）を扱う姿を見てきました。本章では一段階進んで、**複数の専門 tool を Router Agent が質問ごとに振り分ける**構成を組みます。NAT 1.6.0 では `_type: router_agent` を workflow として宣言し、`branches:` に複数の function を並べるだけで、LLM ベースのルーティングが動きます。
