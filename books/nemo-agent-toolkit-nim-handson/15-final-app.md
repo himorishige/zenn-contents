@@ -2,7 +2,7 @@
 title: "第 15 章 題材アプリ総仕上げ"
 ---
 
-本書の最終章です。ここまでに組み上げてきた NAT の要素を 1 つの docker compose に統合し、**「NVIDIA NAT docs & 一般知識ハイブリッド Q&A エージェント」**を完成させます。読者は `/v1/chat` を curl で叩くだけで、内部では ReAct → tool 選択 → A2A → RAG → Milvus までが連鎖し、同時に Phoenix にトレースが流れます。
+本書の最終章です。ここまでに組み上げてきた NAT の要素を 1 つの docker compose に統合し、 **「NVIDIA NAT docs & 一般知識ハイブリッド Q&A エージェント」** を完成させます。読者は `/v1/chat` を curl で叩くだけで、内部では ReAct → tool 選択 → A2A → RAG → Milvus までが連鎖し、同時に Phoenix にトレースが流れます。
 
 本書で登場した道具の集大成、という位置付けです。
 
@@ -208,7 +208,7 @@ curl -s -X POST http://localhost:8000/v1/chat \
   -d '{"messages":[{"role":"user","content":"How do I configure a Milvus retriever in NeMo Agent Toolkit?"}]}' | jq '.choices[0].message.content'
 ```
 
-ReAct が `nat_docs_a2a` 配下のスキルを選び、A2A 経由で agent-nat-docs が呼ばれる想定です。ただし **NAT 1.6.0 では A2A client の引数スキーマ変換で型エラー（`Cannot convert type <str> to <InputArgsSchema>`）**が発生することがあります。その場合は ReAct の retry でリカバリしつつも、期待通りのドキュメント引用までは返せないケースがあります。A2A 経由で安定動作させたいときは第 12 章のように A2A server を単独で叩き、RAG は直接呼ぶ構成に分解するのが安全です。
+ReAct が `nat_docs_a2a` 配下のスキルを選び、A2A 経由で agent-nat-docs が呼ばれる想定です。ただし **NAT 1.6.0 では A2A client の引数スキーマ変換で型エラー（`Cannot convert type <str> to <InputArgsSchema>`）** が発生することがあります。その場合は ReAct の retry でリカバリしつつも、期待通りのドキュメント引用までは返せないケースがあります。A2A 経由で安定動作させたいときは第 12 章のように A2A server を単独で叩き、RAG は直接呼ぶ構成に分解するのが安全です。
 
 ## Phoenix でトレースを追う
 
@@ -235,7 +235,7 @@ ReAct が `nat_docs_a2a` 配下のスキルを選び、A2A 経由で agent-nat-d
 | 第 13 章 | `nat eval` による定量評価（改善サイクルの回し方）                                             |
 | 第 14 章 | `nat serve` + FastAPI / `/v1/chat` OpenAI 互換                                                |
 
-本章はそれぞれ 1 行や 1 セクションずつ「混ぜる」だけでした。**NAT の設計思想である「YAML で宣言的に組み立てる」**という考え方が、完成アプリの規模になっても破綻していないのがポイントです。
+本章はそれぞれ 1 行や 1 セクションずつ「混ぜる」だけでした。 **NAT の設計思想である「YAML で宣言的に組み立てる」** という考え方が、完成アプリの規模になっても破綻していないのがポイントです。
 
 ## よくある詰まりどころ
 
