@@ -1,4 +1,4 @@
-title: 'NeMo Agent Toolkit 実践運用編 — Guardrails × Langfuse で本番投入する'
+title: 'NeMo Agent Toolkit 実践運用編 — Guardrails × Langfuse'
 summary: 'NVIDIA NeMo Agent Toolkit を本番運用品質に引き上げるための続編ハンズオン本。LangGraph による振る舞い設計、NeMo Guardrails と多言語 Safety Guard による安全レール、Langfuse self-hosted による観測・プロンプト管理・コスト追跡・評価データセット管理の 4 本柱を、社内ドキュメント Q&A 題材で一気通貫に構築します。'
 topics: ['nvidia', 'llm', 'docker', 'langgraph', 'guardrails']
 published: false
