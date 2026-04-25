@@ -78,7 +78,7 @@ graph TB
     style LC fill:#fff8e1,stroke:#ff8f00
 ```
 
-本書の ReAct エージェントも、実体は LangGraph の ReAct 実装を NAT が呼び出しています。読者が書くのは YAML だけですが、下では LangGraph のノード遷移が動いています。つまり「LangChain / LangGraph を知っていると NAT の動きが読みやすい」ものの、「知らなくても本書のハンズオンは進められる」ように作られています。
+本書の ReAct エージェントも、実体は LangGraph の ReAct 実装を NAT が呼び出しています。みなさんが書くのは YAML だけですが、下では LangGraph のノード遷移が動いています。つまり「LangChain / LangGraph を知っていると NAT の動きが読みやすい」ものの、「知らなくても本書のハンズオンは進められる」ように作られています。
 
 :::message
 本書では LangChain / LangGraph の内部構造には踏み込みません。NAT の挙動を理解するうえで必要になったら、該当する LangChain ドキュメントへのリンクだけ示します。

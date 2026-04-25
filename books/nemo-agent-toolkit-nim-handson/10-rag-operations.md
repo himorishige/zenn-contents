@@ -55,7 +55,7 @@ CATEGORY_MAP = {
 schema.add_field("category", DataType.VARCHAR, max_length=64)
 ```
 
-Milvus のスキーマに `category` フィールドを追加し、ingest 時にファイル名からカテゴリを引いて詰める形です。読者が自分のドキュメントに置き換えるときも、フォルダ構造や YAML の front matter からカテゴリを推定する発想が流用できます。
+Milvus のスキーマに `category` フィールドを追加し、ingest 時にファイル名からカテゴリを引いて詰める形です。みなさんが自分のドキュメントに置き換えるときも、フォルダ構造や YAML の front matter からカテゴリを推定する発想が流用できます。
 
 実機で再 ingest すると次のようなカテゴリ別カウントが返ります。
 

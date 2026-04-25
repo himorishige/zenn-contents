@@ -155,7 +155,7 @@ macOS や Windows の Claude Desktop から、DGX Spark 上で動かしている
 }
 ```
 
-`DGX_SPARK_IP` は読者の環境次第です。同じ LAN 内なら LAN IP、Tailscale で繋いでいるなら Tailscale IP を指定します。設定後 Claude Desktop を再起動すると、tool 一覧に `wikipedia_search` / `current_datetime` / `react_agent` が加わります。
+`DGX_SPARK_IP` はみなさんの環境次第です。同じ LAN 内なら LAN IP、Tailscale で繋いでいるなら Tailscale IP を指定します。設定後 Claude Desktop を再起動すると、tool 一覧に `wikipedia_search` / `current_datetime` / `react_agent` が加わります。
 
 Claude Code（CLI）から接続する場合は次のコマンドで登録できます。
 

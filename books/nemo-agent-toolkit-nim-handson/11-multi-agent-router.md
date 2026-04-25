@@ -115,7 +115,7 @@ messages
 本書のスコープでは独自の str → ChatRequest 変換ラッパーを書くところまでは踏み込まず、**branch は tool / retriever レベルに限定**する方針にしました。章 12 の A2A プロトコルでは、別プロセスのエージェントを呼ぶ構成（これは公式にスキーマ変換が用意されている）を扱います。
 
 :::message alert
-**NAT 1.6.0 の router_agent 制約**: `react_agent` / `rewoo_agent` / `tool_calling_agent` を branch にそのまま指定すると ChatRequest スキーマ不一致で動きません。同じワークフロー内で子エージェントを呼びたい場合は、章 12 の A2A で別プロセスに切り出すか、読者が独自 Python Function でラッパーを用意する必要があります。
+**NAT 1.6.0 の router_agent 制約**: `react_agent` / `rewoo_agent` / `tool_calling_agent` を branch にそのまま指定すると ChatRequest スキーマ不一致で動きません。同じワークフロー内で子エージェントを呼びたい場合は、章 12 の A2A で別プロセスに切り出すか、みなさん側で独自 Python Function のラッパーを用意する必要があります。
 :::
 
 ## 動かす
@@ -188,7 +188,7 @@ Router の精度は branch の説明文にかなり依存します。本書の `
 - どんな質問タイプに使うかを列挙する（"YAML configuration, MCP / A2A servers, evaluators, ..."）
 - 他 branch との排他関係を匂わせる（"NAT specific", "general open-domain", "current time only" など）
 
-本書の構成は上記のポイントを意識して書いています。読者の業務データで RAG を組むときも、「○○ に特化」「一般的な ○○ 以外」のような形で書き分けると精度が上がります。
+本書の構成は上記のポイントを意識して書いています。みなさんの業務データで RAG を組むときも、「○○ に特化」「一般的な ○○ 以外」のような形で書き分けると精度が上がります。
 
 ## Router vs ReAct の使い分け
 
