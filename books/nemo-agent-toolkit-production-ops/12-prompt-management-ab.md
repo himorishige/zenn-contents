@@ -35,6 +35,8 @@ graph TD
 
 prompt 1 つに対して複数の version が紐づき、各 version に任意の **ラベル**（`production` / `staging` / `experimental` など）を付けられます。実装側は `version=N` で固定取得もできますが、ラベルで取得する運用がいちばん柔軟です。
 
+なお、本章では便宜上「v1 / v2」という呼び方をしますが、Langfuse 上の version 番号は実機環境によって異なります（プロンプトを編集するたびに自動採番されるため、複数の検証を経ると 3, 4 と増えていきます）。本書で重要なのは **ラベル**（`production` / `staging`）で切り替える運用パターンであり、version 番号は補助的な目印として扱います。第 14 章で出てくる Run 名（`v1-prompt-no-guardrails` 等）はまた別の概念で、prompt version とは独立して付ける「実験の名前」です。
+
 ![Langfuse Prompts 一覧画面。本書で登録した `internal-qa-system` が Versions 2 件で並び、Latest Version Created At の時刻と Tags が表示されている](/images/nemo-agent-toolkit-production-ops/02-prompts-list.png =720x)
 
 ラベルベースの運用例：
