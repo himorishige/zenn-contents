@@ -4,7 +4,7 @@ title: "はじめに／本書の歩き方"
 
 NVIDIA NeMo Agent Toolkit（以下 NAT）は、旧 AIQ Toolkit / Agent Intelligence Toolkit が 2025 年 6 月に現名称にリブランドされた「LLM エージェントを YAML で組み立てる」ためのオープンソースツールキットです。公式のサンプルは NVIDIA Inference Microservice（以下 NIM）クラウド前提で書かれていることが多く、手元で試そうとするとまず環境構築でつまずいてしまうケースが少なくないのではないでしょうか。
 
-本書はそのつまずきを減らすため、**クラウド NIM + Docker だけ**で NAT のハンズオンを一気通貫で進めることにこだわりました。Python の venv 作成や GPU セットアップは一切不要で、`docker compose` のコマンドさえ叩ければ、最終章のマルチエージェントアプリまでたどり着けます。
+本書はそのつまずきを減らすため、**NIM + Docker だけ**で NAT のハンズオンを一気通貫で進めることにこだわりました。Python の venv 作成や GPU セットアップは一切不要で、`docker compose` のコマンドさえ叩ければ、最終章のマルチエージェントアプリまでたどり着けます。
 
 ## 本書の立ち位置
 
@@ -71,7 +71,7 @@ GPU や DGX Spark は不要です。動作確認は macOS（Apple Silicon Colima
 - LangChain / LangGraph の内部構造の深掘り
 - NVIDIA 以外の LLM プロバイダ（OpenAI / Anthropic / Bedrock）への切り替え
 
-クラウド NIM は build.nvidia.com の無料クレジット枠で全章を通しで回せる想定です。詳細は付録 B にまとめます。
+NIM は build.nvidia.com の無料クレジット枠で全章を通しで回せる想定です。詳細は付録 B にまとめます。
 
 ## 必要な環境
 

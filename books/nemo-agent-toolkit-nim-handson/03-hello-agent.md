@@ -2,14 +2,14 @@
 title: "第 3 章 最短 Hello Agent"
 ---
 
-ここから本書のハンズオンが始まります。本章では、NAT のもっとも小さな構成、「クラウド NIM に 1 問質問して答えを返すだけ」の ReAct エージェントを `docker compose run` で動かします。YAML ファイル 1 枚と compose ファイル 1 枚だけで、LLM エージェントがツールを呼んで答えを返す一連の流れを体験するのがゴールです。
+ここから本書のハンズオンが始まります。本章では、NAT のもっとも小さな構成、「NIM に 1 問質問して答えを返すだけ」の ReAct エージェントを `docker compose run` で動かします。YAML ファイル 1 枚と compose ファイル 1 枚だけで、LLM エージェントがツールを呼んで答えを返す一連の流れを体験するのがゴールです。
 
 ## この章のゴール
 
 - `ch03-hello-agent/` ディレクトリで `docker compose run --rm nat` が通る
 - ReAct の Thought / Action / Observation ループを自分の目で確認する
 - workflow.yml の最小構成（`llms` / `functions` / `workflow`）を頭に入れる
-- クラウド NIM 側で推論クレジットが消費される感覚をつかむ
+- NIM 側で推論クレジットが消費される感覚をつかむ
 
 ## 前章からの引き継ぎ
 
