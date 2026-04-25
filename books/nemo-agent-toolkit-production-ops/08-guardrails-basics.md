@@ -110,7 +110,7 @@ models:
 instructions:
   - type: general
     content: |
-      あなたはアサヒシステムズ株式会社の社内文書 Q&A アシスタントです。
+      あなたは Example 株式会社の社内文書 Q&A アシスタントです。
       日本語で 1〜3 文で簡潔に答えてください。
 
 rails:
