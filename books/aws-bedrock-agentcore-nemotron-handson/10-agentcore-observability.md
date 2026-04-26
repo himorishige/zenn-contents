@@ -254,7 +254,7 @@ graph LR
     style P fill:#ffcdd2,stroke:#b71c1c
 ```
 
-警告（Warning）はゆるく Slack に流し、深刻なら（Critical）メールも飛ばし、致命的なら（Page）オンコール担当者に電話、という三段論法は SaaS 運用の定石です。社内 Q&A は SaaS ほど厳しい SLA はいらないかもしれませんが、Critical までは仕込んでおくと安心です。
+警告（Warning）はゆるく Slack に流し、深刻なら（Critical）メールも飛ばし、致命的なら（Page）オンコール担当者に電話、という三段論法は SaaS 運用の定石です。社内 Q&A は SaaS ほど厳しい SLA を要求されない場面が多いものの、Critical までは仕込んでおくと安心です。
 
 ## デバッグ実例 — エージェントが期待外の応答を返したとき
 
