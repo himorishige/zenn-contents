@@ -346,4 +346,4 @@ AgentCore Observability 自体は CloudWatch の課金に乗ります。
 
 ## 次章では
 
-次章は **Bedrock Knowledge Bases** です。OpenSearch Serverless を vector store にして社内 Q&A コーパスを ingest し、`Retrieve` API で citation 付き検索を実装します。Sprint 0 で発見した「**Nemotron は KB の generation モデルとして直接組み込み不可**」という制約を踏まえ、Agent 経由で間接 RAG する設計パターンを LangGraph state graph で組みます。OpenSearch Serverless OCU が KB コストの 94% を支配する現実を直視しながら、開発時に KB を停止できる CDK パラメータも実装します。
+次章は **Bedrock Knowledge Bases** です。OpenSearch Serverless を vector store にして社内 Q&A コーパスを ingest し、`Retrieve` API で citation 付き検索を実装します。Nemotron は KB の generation モデルとして直接組み込めない制約があるため、Agent 経由で間接 RAG する設計パターンを LangGraph state graph で組みます。

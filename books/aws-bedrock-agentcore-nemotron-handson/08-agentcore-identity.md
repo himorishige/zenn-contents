@@ -365,4 +365,4 @@ Identity 周りで発生するコストは次の通りです。
 
 ## 次章では
 
-次章は **AgentCore Built-in Tools** です。Code Interpreter で表データの計算や CSV 処理、Browser で社外 Web サイトの情報取得を、AgentCore のサンドボックス環境内で安全に実行する方法を扱います。Sprint 0 では「API 利用可能性確認」までしか進めなかったので、Ch 9 で初めての実機構築になります。
+次章は **AgentCore Built-in Tools** です。Code Interpreter で表データの計算や CSV 処理、Browser で社外 Web サイトの情報取得を、AgentCore のサンドボックス環境内で安全に実行する方法を扱います。

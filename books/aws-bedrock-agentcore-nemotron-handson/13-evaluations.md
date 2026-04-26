@@ -123,7 +123,7 @@ graph LR
 | `faithfulness`        | 回答が context に忠実か（hallucinate していないか） |
 | `answer_relevance`    | 回答が質問に関連しているか                          |
 
-Sprint 0 段階では実機検証していないので、本書のサンプルリポでも本番想定のテンプレートだけ用意し、実機実行は読者の手元で試せる構成にしました。
+サンプルリポには本番想定のテンプレートを用意したので、実機実行は読者の手元で試せます。
 
 ### 向いている用途
 
@@ -148,7 +148,7 @@ agentcore add evaluator \
 
 ### コスト面の注意
 
-Sprint 0 で確認した AgentCore Evaluations の Tier1 Output 単価は **$12 / 1M tokens** で、Bedrock Nano 3 30B の出力単価（$0.35 / 1M）の **34 倍**です。
+AgentCore Evaluations の Tier1 Output 単価は **$12 / 1M tokens** で、Bedrock Nano 3 30B の出力単価（$0.35 / 1M）の **34 倍**です。
 
 ```text
 Nano 3 30B output: $0.35 / 1M tokens
@@ -380,4 +380,4 @@ AgentCore Evaluator の Tier1 Output が高いことが原因です。Cost Anoma
 
 ## 次章では
 
-次章は **マルチエージェント**です。Bedrock Agents Multi-Agent Collaboration（公式の supervisor-collaborator hierarchical）と、LangGraph の supervisor pattern を比較し、Nemotron Nano 3 30B を Supervisor に、Nano 9B v2 を Worker に据える 2 階層エージェント構成を組みます。Sprint 0 で発見した「**AgentCore に Workload Identity が built-in**」も活かして、エージェント間の認証 / 認可も整えます。
+次章は **マルチエージェント**です。Bedrock Agents Multi-Agent Collaboration と LangGraph の supervisor pattern を比較し、Nemotron Nano 3 30B を Supervisor に、Nano 9B v2 を Worker に据える 2 階層エージェント構成を組みます。

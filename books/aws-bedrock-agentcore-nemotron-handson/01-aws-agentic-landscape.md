@@ -55,7 +55,7 @@ AgentCore は 2025 年に GA したフルマネージドのエージェント基
 
 3 番目は、SageMaker Endpoint で推論モデルを独立にホストし、エージェント部分を別途 ECS / Lambda などで自作するパターンです。Custom container（vLLM / TensorRT-LLM / NIM）を載せたい、ファインチューニング済みモデルをサーブしたい、といった要件があるときに選びます。
 
-向いているのは、**特定モデルを長時間 / 高頻度で叩く必要があり、Bedrock の単価では割に合わない**ケースです。一方で、Endpoint は 24 時間稼働の固定費（GPU インスタンス料金）が支配的になりがちで、月額数千 USD を即座に超えます。NIM コンテナを SageMaker Endpoint に載せるパスは公式 JumpStart 経由で GA していますが、本書の Sprint 0 で実機検証したところ、CUDA Graph timeout や `serve` スクリプト不在の壁にぶつかって全試行 Failed だったため、本書では選択肢から外しました。
+向いているのは、**特定モデルを長時間 / 高頻度で叩く必要があり、Bedrock の単価では割に合わない**ケースです。一方で、Endpoint は 24 時間稼働の固定費（GPU インスタンス料金）が支配的になりがちで、月額数千 USD を即座に超えます。本書の社内 Q&A 規模では割に合わないため、選択肢から外しました。
 
 ### 4. Lambda + 自作 LangGraph
 
@@ -84,7 +84,7 @@ AgentCore は 2025 年に GA したフルマネージドのエージェント基
 
 太字は本書が選んだ AgentCore です。学習コストは「中」で Bedrock Agents より一段重いものの、運用負荷とフレームワーク自由度の両方が「低 / 高」というバランスに収まっています。
 
-特筆すべきは観測と評価の項目です。本書の Sprint 0 で `bedrock-agentcore-control help` を眺めたところ、当初プランに無かった `create-evaluator` / `create-online-evaluation-config` / `create-policy-engine` といったコマンドが見つかりました。AgentCore は Runtime / Memory / Gateway / Identity / Built-in Tools / Observability の 6 サービスとして紹介されますが、実際は **Evaluator と Policy Engine が built-in** で含まれており、評価とガバナンスのレイヤーまでカバーできる作りになっていました。これは本書の Ch 13（評価）と Ch 12（Guardrails）の構成にも影響を与えています。
+特筆すべきは観測と評価の項目です。AgentCore は Runtime / Memory / Gateway / Identity / Built-in Tools / Observability の 6 サービスとして紹介されますが、実際は `bedrock-agentcore-control` の API として **Evaluator と Policy Engine も built-in** で含まれており、評価とガバナンスのレイヤーまでカバーできる作りになっています。
 
 ## 要件別の選定フローチャート
 
@@ -118,32 +118,30 @@ flowchart TD
 
 ## 本書が AgentCore + LangGraph を選んだ 4 つの根拠
 
-選定の流れだけだと味気ないので、根拠をもう少し具体的に書きます。本書の Sprint 0 で実機検証して固まった、4 つの理由があります。
-
 ### 根拠 1: フレームワーク非依存で LangGraph をそのまま持ち込める
 
-AgentCore Runtime は CrewAI / LangGraph / LlamaIndex / Strands Agents のいずれにも対応しています。前作 2 冊目で LangGraph を扱った読者は、`graph.ainvoke({"messages": ...})` のような呼び出しコードをほぼそのまま流用できます。Sprint 0 では実際に最小の state graph（retrieve → reason → answer）を組み、`agentcore dev --logs` でローカル起動して `1.55 秒で日本語応答`を確認できました。フレームワーク移行のハードルがほぼゼロという点が、前作読者には大きな利点です。
+AgentCore Runtime は CrewAI / LangGraph / LlamaIndex / Strands Agents のいずれにも対応しています。LangGraph で書いた `graph.ainvoke({"messages": ...})` のような呼び出しコードをそのままデプロイでき、ローカル開発からクラウド実行までの移行コストがほぼゼロです。
 
-### 根拠 2: AgentCore CLI の scaffold が体験として軽い
+### 根拠 2: AgentCore CLI の scaffold が軽い
 
-`@aws/agentcore` という npm パッケージで提供される CLI が思いのほか軽量です。`agentcore create --name qaSupervisor --framework LangChain_LangGraph --protocol HTTP --build CodeZip --model-provider Bedrock --memory none` の 1 行で、CDK プロジェクト + Python アプリ + entrypoint + MCP クライアントの雛形が一気に立ち上がります。
+`@aws/agentcore` という npm パッケージで提供される CLI が軽量です。`agentcore create --name qaSupervisor --framework LangChain_LangGraph --protocol HTTP --build CodeZip --model-provider Bedrock --memory none` の 1 行で、CDK プロジェクト + Python アプリ + entrypoint + MCP クライアントの雛形が一気に立ち上がります。
 
-scaffold 直後の `agentcore validate` が `Valid` を返すまでが 30 秒、`agentcore dev` でローカル開発サーバが立ち上がるまでが追加 30 秒程度です。Memory を追加するときも `agentcore add memory --strategies SEMANTIC --expiry 7` で `agentcore.json` の `memories[]` に項目が追加されます。コードを書く前の足回りで詰まる時間が極端に短くなります。
+scaffold 直後の `agentcore validate` で設定の妥当性が確認でき、`agentcore dev` で 1 分以内にローカル開発サーバが起動します。Memory を追加するときも `agentcore add memory` 1 コマンドで `agentcore.json` の `memories[]` に項目が追加されます。
 
-### 根拠 3: built-in 機能の充実（Memory / Gateway / Identity / Evaluator / Policy Engine）
+### 根拠 3: built-in 機能の充実
 
-繰り返しになりますが、AgentCore は 6 サービスと公式が紹介していても、実際は Evaluator と Policy Engine も含めて 8 つ近くの機能が CLI で叩けます。Memory 1 つ取っても、`SEMANTIC` / `SUMMARIZATION` / `USER_PREFERENCE` / `EPISODIC` の 4 種 strategy を選択でき、namespace に `{actorId}` を埋め込むだけでユーザー単位の長期メモリが自動でスコープされます。
+AgentCore は 6 サービスとして紹介されますが、実際は Evaluator と Policy Engine も含めて 8 つ近くの機能が CLI から扱えます。Memory 1 つ取っても、`SEMANTIC` / `SUMMARIZATION` / `USER_PREFERENCE` / `EPISODIC` の 4 種 strategy を選択でき、namespace に `{actorId}` を埋め込むだけでユーザー単位の長期メモリが自動でスコープされます。
 
-これらを EC2/ECS で自作すれば、Memory の永続化、TTL 管理、ユーザー識別、scope 切り替えで合計数千行のコードと運用負荷を背負うことになります。AgentCore はそこを CLI 1 コマンドで済ませてくれる、という当たり前にも見える価値が、実装が進むほどジワジワ効いてきます。
+これらを EC2/ECS で自作すれば、Memory の永続化、TTL 管理、ユーザー識別、scope 切り替えで相当のコードと運用負荷を背負うことになります。
 
 ### 根拠 4: Bedrock ネイティブ Nemotron との相性
 
-本書は推論モデルに Bedrock ネイティブの Nemotron Nano 3 30B を主軸に据えています。AgentCore Runtime から見ると、これは `langchain_aws.ChatBedrockConverse(model_id="nvidia.nemotron-nano-3-30b", region_name="ap-northeast-1")` の数行で繋がります。**Marketplace 経由のデプロイも、SageMaker Endpoint も、自前のホスティングも要りません**。
+本書は推論モデルに Bedrock ネイティブの Nemotron Nano 3 30B を主軸に据えています。AgentCore Runtime から見ると、これは `langchain_aws.ChatBedrockConverse(model_id="nvidia.nemotron-nano-3-30b", region_name="ap-northeast-1")` の数行で繋がります。Marketplace 経由のデプロイも、SageMaker Endpoint も、自前のホスティングも不要です。
 
-東京リージョンの単価は入力 $0.07 / 1M tokens、出力推定 $0.35 / 1M tokens で、Claude Sonnet 4.5 の 1/40 〜 1/100 という安さです。1,000 conversation/月のシナリオで Bedrock 推論コストが $0.88 程度に収まり、AgentCore Memory / Gateway / Lambda / CloudWatch などを足しても、Knowledge Bases さえ起動しなければ月 $22 程度。日本語応答も 1 秒未満で、用途とコストのバランスが本書の題材にぴたりとはまります。
+東京リージョンの単価は入力 0.07 USD / 1M tokens、出力 0.35 USD / 1M tokens で、Claude Sonnet 4.5 の 1/40 〜 1/100 という安さです。1,000 conversation/月のシナリオで Bedrock 推論コストが 1 USD 未満に収まり、AgentCore Memory / Gateway / Lambda / CloudWatch などを足しても、Knowledge Bases さえ起動しなければ月 22 USD 程度。日本語応答も 1 秒未満で、用途とコストのバランスが本書の題材にぴたりとはまります。
 
 :::message
-**Sprint 0 で見つけた発見**: AWS 公式の Bedrock Model cards ページには Nemotron Nano 9B v2 / Super 120B / Nano 12B VL の 3 種しか記載がありませんが、`aws bedrock list-foundation-models --by-provider NVIDIA --region ap-northeast-1` を叩くと 4 種目として **Nemotron Nano 3 30B** が ACTIVE / ON_DEMAND で見つかります。本書の発見の中でも特に章構成にインパクトを与えた1つで、第 3 章で詳しく取り上げます。
+AWS 公式の Bedrock Model cards ページには Nemotron Nano 9B v2 / Super 120B / Nano 12B VL の 3 種しか記載がありませんが、`aws bedrock list-foundation-models --by-provider NVIDIA --region ap-northeast-1` を叩くと 4 種目として **Nemotron Nano 3 30B** が見つかります。詳細は第 3 章で取り上げます。
 :::
 
 ## AgentCore 6 サービスの位置づけ

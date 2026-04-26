@@ -3,7 +3,7 @@ title: "第 5 章 AgentCore Runtime — LangGraph をデプロイ"
 free: true
 ---
 
-第 5 章は本書の核です。Bedrock AgentCore Runtime に LangGraph で組んだエージェントをデプロイし、社内ドキュメント Q&A の最小実装を AWS 上で稼働させます。`agentcore create` で scaffold した Python プロジェクトに Nemotron Nano 3 30B を組み込み、ローカル `agentcore dev` で動作確認した後、`agentcore deploy` で AWS Runtime に上げます。Sprint 0 のローカル動作確認（**1.55 秒で日本語応答**）を、本章では実 AWS 上でも再現します。
+第 5 章は本書の核です。Bedrock AgentCore Runtime に LangGraph で組んだエージェントをデプロイし、社内ドキュメント Q&A の最小実装を AWS 上で稼働させます。`agentcore create` で scaffold した Python プロジェクトに Nemotron Nano 3 30B を組み込み、ローカル `agentcore dev` で動作確認した後、`agentcore deploy` で AWS Runtime に上げる、というのが本章の流れです。
 
 ## この章のゴール
 
@@ -82,7 +82,7 @@ agentcore create \
 
 flag の指定：
 
-- `--name qaSupervisor`: alphanumeric で先頭が文字。ハイフンは不可（Sprint 0 のハマりポイント）
+- `--name qaSupervisor`: alphanumeric で先頭が文字。ハイフンは不可（よく踏むハマりポイント）
 - `--framework LangChain_LangGraph`: 本書の選定
 - `--protocol HTTP`: 標準。`MCP` / `A2A` も選べるが本書では HTTP
 - `--build CodeZip`: ZIP デプロイ。コンテナを使いたい場合は `Container`
@@ -152,7 +152,7 @@ import os
 
 from langchain_aws import ChatBedrockConverse
 
-# 主軸モデル: Nemotron Nano 3 30B（東京 In-Region、Sprint 0 で 835ms 実測）
+# 主軸モデル: Nemotron Nano 3 30B（東京 In-Region、実測 835ms）
 MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "nvidia.nemotron-nano-3-30b")
 AWS_REGION = os.environ.get("AWS_REGION", "ap-northeast-1")
 
@@ -307,7 +307,7 @@ Press Ctrl+C to stop
 agentcore dev "DGX Spark について 2 行で日本語で説明してください。"
 ```
 
-Sprint 0 の実機ログは次の通りでした。
+実機ログは次の通りです。
 
 ```text
 DGX Spark は、NVIDIA が提供する GPU アクセラレート型 AI スーパーコンピュータプラットフォームで、大規模なデータ分析や機械学習のワークロードを高速に処理できます。また、複数のノードを連携させてスケーラビリティを向上させた高性能インフラを提供します。
@@ -319,7 +319,7 @@ agentcore dev  2>&1  0.63s user 0.11s system 47% cpu 1.554 total
 
 ### `agentcore dev` のよくあるエラー
 
-Sprint 0 / 1 で踏んだ典型的なエラーを共有します。
+よく踏む典型的なエラーを共有します。
 
 | エラー                                  | 原因                                                   | 対処                                              |
 | --------------------------------------- | ------------------------------------------------------ | ------------------------------------------------- |
@@ -345,7 +345,7 @@ agentcore deploy
 
 ### 初回デプロイの目安時間
 
-Sprint 0 で計測した初回デプロイは **CloudFormation 作成で 8〜10 分**程度です。CodeZip ベースなので、コードのみの再デプロイは 2〜3 分で済みます。
+初回デプロイは **CloudFormation 作成で 8〜10 分**程度です。CodeZip ベースなので、コードのみの再デプロイは 2〜3 分で済みます。
 
 ### `--plan` で事前確認
 
@@ -441,7 +441,7 @@ agentcore deploy
 
 ## トラブルシューティング集
 
-Sprint 0 / 1 で踏んだトラブルとその対処をまとめます。
+本書執筆中に踏んだトラブルとその対処をまとめます。
 
 ### `Your session has expired` で invoke が失敗する
 
@@ -470,4 +470,4 @@ Runtime にエージェントを乗せる感覚は、ここまでで掴めたは
 
 ## 次章では
 
-次章は **AgentCore Memory** です。`agentcore add memory --strategies SEMANTIC` の 1 コマンドで Memory リソースを定義し、`SEMANTIC` / `SUMMARIZATION` / `USER_PREFERENCE` / `EPISODIC` の 4 種 strategy をどう使い分けるか、`{actorId}` placeholder で自動的にユーザー単位の namespace が作られる仕組み、そして Memory に保存されたイベントが LangGraph の state にどう反映されるかを順に扱います。Sprint 0 で project config に追加だけ済ませた `qaShortTermMem` を、次章で実 AWS リソースとして稼働させます。
+次章は **AgentCore Memory** です。`agentcore add memory` コマンドで Memory を追加し、4 種 strategy（SEMANTIC / SUMMARIZATION / USER_PREFERENCE / EPISODIC）の使い分けと、`{actorId}` placeholder でユーザー単位の namespace が自動生成される仕組みを扱います。

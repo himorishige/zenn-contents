@@ -19,7 +19,7 @@ free: true
 
 ## リージョン別の Bedrock ネイティブ Nemotron 提供状況
 
-Sprint 0 で `aws bedrock list-foundation-models --by-provider NVIDIA --region <region>` を 4 つのリージョンで実行した結果のサマリです（2026-04 時点、後続バージョンで変動の可能性あり）。
+`aws bedrock list-foundation-models --by-provider NVIDIA --region <region>` を 4 つのリージョンで実行した結果のサマリです（2026-04 時点、後続バージョンで変動の可能性あり）。
 
 | リージョン               | Nemotron Nano 3 30B | Nano 9B v2 |      Super 120B      | Nano 12B VL |
 | ------------------------ | :-----------------: | :--------: | :------------------: | :---------: |
@@ -32,7 +32,7 @@ Sprint 0 で `aws bedrock list-foundation-models --by-provider NVIDIA --region <
 
 ## us-east-1 + Cross-Region Inference の構成
 
-東京で **Super 120B が connection drop してしまう問題**（Sprint 0 PoC 1）を、`us-east-1` への切り替えで解消できる場合があります。
+東京で Super 120B の応答が安定しない場合、`us-east-1` への切り替えで解消できることがあります。
 
 ```python:agents/qaSupervisor/app/qaSupervisor/model/load.py
 import os
@@ -247,7 +247,7 @@ agentcore deploy --region us-east-1
 - マルチリージョン構成のリファレンス
 - 移植手順 5 ステップ + 注意点 5 つ
 
-これで本書の全章が完成です。Ch 0 から付録 B まで、AWS Bedrock + AgentCore + Nemotron で社内ドキュメント Q&A エージェントを Production Grade に持っていく道筋を、Sprint 0 の実機検証ログとともに辿ってきました。読んでくれた皆さんが、自分のプロジェクトに合わせて構成を調整しながら、エージェントを業務で使い続けられる状態に持っていけることを願っています。
+これで本書の全章が完成です。第 0 章から付録 B まで、AWS Bedrock + AgentCore + Nemotron で社内ドキュメント Q&A エージェントを Production Grade に持っていく道筋を辿ってきました。読んでくれた皆さんが、自分のプロジェクトに合わせて構成を調整しながら、エージェントを業務で使い続けられる状態に持っていけることを願っています。
 
 最後に、何か動かない箇所や分かりにくい説明があったら、サンプルコードリポジトリの [Issues](https://github.com/himorishige/aws-bedrock-agentcore-nemotron-handson/issues) や Zenn のコメント欄で教えてください。AgentCore は GA 直後で API の挙動が変化しやすい時期なので、執筆時と異なる動作に出会ったほうからの報告は特に助かります。
 

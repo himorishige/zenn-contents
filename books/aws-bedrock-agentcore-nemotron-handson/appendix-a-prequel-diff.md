@@ -80,7 +80,7 @@ NAT の YAML driven な設計を捨て、LangGraph の state graph を直接 Age
 | 月額               | ECS Fargate + RDS で 30 〜 50 USD | CloudWatch 課金のみで数 USD                   |
 | 比較・代替         | —                                 | Langfuse on ECS（章末コラム）                 |
 
-観測スタックは AWS マネージド側が大幅に軽量です。Langfuse on ECS の月 30 〜 50 USD が、AgentCore Observability で月数 USD に下がります。
+観測スタックは AWS マネージド側が圧倒的に軽量です。Langfuse on ECS の月 30 〜 50 USD が、AgentCore Observability で月数 USD に下がります。
 
 ### 4. Eval Dataset
 
@@ -111,14 +111,14 @@ NAT の YAML driven な設計を捨て、LangGraph の state graph を直接 Age
 
 前作読了後に本書に移る読者の学習コスト感を整理します。
 
-| 領域                       | 学習コスト | 備考                                    |
-| -------------------------- | ---------- | --------------------------------------- |
-| AWS 基礎（IAM / VPC / S3） | 低-中      | Bedrock 触ったことがあれば低            |
-| Bedrock 基礎               | 低         | model access 申請のみ                   |
-| AgentCore 6 サービス       | **高**     | 全部新サービス、Sprint 0 PoC で時間確保 |
-| LangGraph                  | 低         | 前作で習得済み                          |
-| CDK v2                     | 中         | Python ベースで前作読者に親和的         |
-| Cognito                    | 中         | RBAC 設計の公式ドキュメントが薄い       |
+| 領域                       | 学習コスト | 備考                                     |
+| -------------------------- | ---------- | ---------------------------------------- |
+| AWS 基礎（IAM / VPC / S3） | 低-中      | Bedrock 触ったことがあれば低             |
+| Bedrock 基礎               | 低         | model access 申請のみ                    |
+| AgentCore 6 サービス       | **高**     | すべて新サービスのため最初の章で時間確保 |
+| LangGraph                  | 低         | 前作で習得済み                           |
+| CDK v2                     | 中         | Python ベースで前作読者に親和的          |
+| Cognito                    | 中         | RBAC 設計の公式ドキュメントが薄い        |
 
 逆に楽になる領域もあります。
 
