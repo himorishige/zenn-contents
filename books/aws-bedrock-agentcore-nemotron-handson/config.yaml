@@ -1,0 +1,7 @@
+title: 'AWS Bedrock × Nemotron で組む Production Agentic AI'
+summary: 'AWS Bedrock AgentCore（Runtime / Memory / Gateway / Identity / Built-in Tools / Observability）と Bedrock ネイティブ Nemotron（Super 120B / Nano 9B v2）、LangGraph を組み合わせて、社内ドキュメント Q&A エージェントを Production Grade で構築するハンズオン本。OSS スタック自前運用の負荷を AWS マネージドで解消し、ローカル GPU 不要で本番運用品質まで持っていく道筋を 16 章 + 付録 3 章で示します。'
+topics: ['aws', 'bedrock', 'nvidia', 'langgraph', 'agentic']
+published: false
+# price: 価格を設定する場合にコメントアウトを外す
+# chapters は章執筆完了のタイミングで順次追加する
+chapters: []
