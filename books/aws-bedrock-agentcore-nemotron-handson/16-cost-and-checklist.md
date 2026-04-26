@@ -166,7 +166,7 @@ KB 起動するなら、ユーザー数や conversation 数によらず **月 $3
 
 - [ ] 11. CloudWatch Transaction Search 有効
 - [ ] 12. 5 つの KPI（latency / token / error / tool failure / session）の Dashboard 作成
-- [ ] 13. Critical アラート（p95 > 5 秒、error > 5%）が Slack / メールに飛ぶ
+- [ ] 13. Critical アラート（p95 が 5 秒超、error が 5% 超）が Slack / メールに飛ぶ
 - [ ] 14. Cost Budgets で月予算アラート設定
 - [ ] 15. Cost Anomaly Detection 有効
 
@@ -281,7 +281,7 @@ graph TB
 
 本書で扱った差別化要素をあらためて整理します。
 
-1. **Bedrock ネイティブ Nemotron Nano 3 30B**（公式モデルカード未掲載、東京で爆速 < 1 秒）を主軸モデルに据えた
+1. **Bedrock ネイティブ Nemotron Nano 3 30B**（公式モデルカード未掲載、東京で爆速 1 秒未満）を主軸モデルに据えた
 2. **Bedrock Guardrails Standard tier + APAC profile + Cross-Region Inference 必須**という日本語サポートの罠を実機ログで明らかにし、解決策を提示
 3. **Nemotron は KB に直接組み込めない**という制約を踏まえた **Agent 経由間接 RAG** の設計パターンを提示
 4. AgentCore CLI（`@aws/agentcore`）+ AWS CDK の組み合わせで、scaffold から本番運用まで一気通貫
