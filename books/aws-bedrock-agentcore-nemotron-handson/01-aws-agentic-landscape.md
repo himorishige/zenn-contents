@@ -55,7 +55,7 @@ AgentCore は 2025 年に GA したフルマネージドのエージェント基
 
 3 番目は、SageMaker Endpoint で推論モデルを独立にホストし、エージェント部分を別途 ECS / Lambda などで自作するパターンです。Custom container（vLLM / TensorRT-LLM / NIM）を載せたい、ファインチューニング済みモデルをサーブしたい、といった要件があるときに選びます。
 
-向いているのは、**特定モデルを長時間 / 高頻度で叩く必要があり、Bedrock の単価では割に合わない**ケースです。一方で、Endpoint は 24 時間稼働の固定費（GPU インスタンス料金）が支配的になりがちで、月額数千 USD を即座に超えます。NIM コンテナを SageMaker Endpoint に載せるパスは公式 JumpStart 経由で GA していますが、本書の Sprint 0 で実機検証したところ、CUDA Graph timeout や `serve` スクリプト不在の壁にぶつかって全試行 Failed でした。詳細は付録 B に撤退記録としてまとめてあります。
+向いているのは、**特定モデルを長時間 / 高頻度で叩く必要があり、Bedrock の単価では割に合わない**ケースです。一方で、Endpoint は 24 時間稼働の固定費（GPU インスタンス料金）が支配的になりがちで、月額数千 USD を即座に超えます。NIM コンテナを SageMaker Endpoint に載せるパスは公式 JumpStart 経由で GA していますが、本書の Sprint 0 で実機検証したところ、CUDA Graph timeout や `serve` スクリプト不在の壁にぶつかって全試行 Failed だったため、本書では選択肢から外しました。
 
 ### 4. Lambda + 自作 LangGraph
 

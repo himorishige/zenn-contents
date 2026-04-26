@@ -149,7 +149,7 @@ region = ap-northeast-1
 output = json
 ```
 
-東京以外を主軸にする場合の考慮は付録 C にまとめてあります。
+東京以外を主軸にする場合の考慮は付録 B にまとめてあります。
 
 ## AWS CDK v2 のインストール
 
@@ -257,7 +257,7 @@ aws bedrock get-foundation-model-availability \
 3 項目すべてが `AVAILABLE` / `AUTHORIZED` になっていれば、Ch 3 で `Converse` API を叩けます。
 
 :::message alert
-**Sprint 0 で見つけた制約**: `cohere.embed-multilingual-v3` は東京リージョンで `agreementAvailability: NOT_AVAILABLE` でした（2026-04 時点）。Cohere の多言語 Embed を試したいみなさんは、付録 C の us-east-1 構成を参照してください。本書本編では Titan Embed v2 を主軸にします。
+**Sprint 0 で見つけた制約**: `cohere.embed-multilingual-v3` は東京リージョンで `agreementAvailability: NOT_AVAILABLE` でした（2026-04 時点）。Cohere の多言語 Embed を試したいみなさんは、付録 B の us-east-1 構成を参照してください。本書本編では Titan Embed v2 を主軸にします。
 :::
 
 ## Cost Budgets でコストアラートを仕込む

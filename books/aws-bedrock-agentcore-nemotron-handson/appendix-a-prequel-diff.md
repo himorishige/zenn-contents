@@ -105,8 +105,7 @@ NAT の YAML driven な設計を捨て、LangGraph の state graph を直接 Age
 | Ch 11（後半） | KB Agent 経由間接組み込み                         | 前作 Milvus 直結とパターンが異なる      |
 | Ch 14         | Multi-Agent Collaboration vs LangGraph supervisor | 前作実践運用編 Ch 15 の AWS 版          |
 | Ch 15         | CDK v2 で全リソース                               | 前作 docker compose の AWS マネージド版 |
-| 付録 B        | SageMaker Endpoint NIM 撤退記録                   | 前作にはなし、本書独自の試行            |
-| 付録 C        | 東京以外で動かす考慮                              | 前作にはなし、AWS リージョン戦略        |
+| 付録 B        | 東京以外で動かす考慮                              | 前作にはなし、AWS リージョン戦略        |
 
 ## 移行コスト（読者視点）
 
@@ -137,7 +136,7 @@ graph TB
 
     A -->|ハードウェア購入が必要| B
     B -->|Mac でも動くが運用が重い| C
-    C -->|AWS アカウントだけで完結| End["✅ 月額 < $500、運用負荷ほぼゼロ"]
+    C -->|AWS アカウントだけで完結| End["✅ 月額 500 USD 未満、運用負荷ほぼゼロ"]
     style C fill:#fff8e1,stroke:#ff8f00
 ```
 
