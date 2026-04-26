@@ -4,4 +4,23 @@ topics: ['aws', 'bedrock', 'nvidia', 'langgraph', 'agentic']
 published: false
 # price: 価格を設定する場合にコメントアウトを外す
 # chapters は章執筆完了のタイミングで順次追加する
-chapters: []
+chapters:
+  - 00-intro
+  - 01-aws-agentic-landscape
+  - 02-environment-setup
+  - 03-bedrock-nemotron-intro
+  - 04-service-tiers-cost
+  - 05-agentcore-runtime
+  - 06-agentcore-memory
+  - 07-agentcore-gateway
+  - 08-agentcore-identity
+  - 09-agentcore-builtin-tools
+  - 10-agentcore-observability
+  - 11-knowledge-bases
+  - 12-bedrock-guardrails
+  - 13-evaluations
+  - 14-multi-agent
+  - 15-iac-cicd
+  - 16-cost-and-checklist
+  - appendix-a-prequel-diff
+  - appendix-b-other-regions
